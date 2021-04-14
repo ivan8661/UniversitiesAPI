@@ -2,10 +2,7 @@ package com.scheduleapigateway.apigateway.DatabaseRepository;
 
 
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
@@ -36,6 +33,12 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private Set<UserSession> userSessions;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Deadline> userDeadlines;
+
+    @OneToOne
+    private University university;
 
 
 
