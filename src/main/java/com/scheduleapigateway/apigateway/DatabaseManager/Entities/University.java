@@ -1,29 +1,30 @@
-package com.scheduleapigateway.apigateway.DatabaseRepository;
+package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
 
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class University {
 
     @Id
+    @Column(name="id")
     private Integer id;
 
+    @Column(name="name")
     private String name;
 
+    @Column(name="service")
     private String service;
 
+    @Column(name="news")
     private String news;
 
+    @Column(name="reference_date")
     private Integer referenceDate;
 
+    @Column(name="reference_week")
     private Boolean referenceWeek;
 
-    @OneToOne
-    private User user;
 
     public University() {
     }
@@ -77,11 +78,4 @@ public class University {
         this.referenceWeek = referenceWeek;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }
