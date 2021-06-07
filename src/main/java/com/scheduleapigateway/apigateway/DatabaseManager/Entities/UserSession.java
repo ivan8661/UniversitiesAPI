@@ -1,26 +1,32 @@
-package com.scheduleapigateway.apigateway.DatabaseRepository;
+package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
 
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import java.util.Set;
+import javax.persistence.*;
+
+/**
+ * @author Ivan Poltorakov
+ * @since api/v1
+ */
+
+
 
 @Entity
-@Table(name = "user_session")
 public class UserSession {
 
 
     @Id
+    @Column(name="id")
     private String id;
 
+
+    @Column(name="last_active", nullable = false)
     private String lastActive;
 
     private String platform;
 
-    @ManyToOne
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private ScheduleAppUser user;
 
 
     public UserSession() {
@@ -51,11 +57,11 @@ public class UserSession {
         this.platform = platform;
     }
 
-    public User getUser() {
+    public ScheduleAppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(ScheduleAppUser user) {
         this.user = user;
     }
 

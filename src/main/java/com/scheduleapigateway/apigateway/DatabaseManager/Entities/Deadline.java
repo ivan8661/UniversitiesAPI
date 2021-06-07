@@ -1,32 +1,34 @@
-package com.scheduleapigateway.apigateway.DatabaseRepository;
+package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
 
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import java.util.Set;
+import javax.persistence.*;
 
 @Entity
 public class Deadline {
 
-
     @Id
+    @Column(name="id", nullable = false, unique = true)
     private String id;
 
+    @Column(name="name")
     private String name;
 
+    @Column(name="description", length = 1024)
     private String description;
 
+    @Column(name="time")
     private Long time;
 
+    @Column(name = "creation")
     private Long creation;
 
+    @Column(name= "status")
     private String status;
 
 
-    @ManyToOne
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private ScheduleAppUser user;
 
 
 
@@ -82,11 +84,11 @@ public class Deadline {
         this.status = status;
     }
 
-    public User getUser() {
+    public ScheduleAppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(ScheduleAppUser user) {
         this.user = user;
     }
 }
