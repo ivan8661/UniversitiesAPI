@@ -2,7 +2,9 @@ package com.scheduleapigateway.apigateway.Controllers;
 
 
 import com.scheduleapigateway.apigateway.Exceptions.APIException;
+import com.scheduleapigateway.apigateway.Services.UserService;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,22 +19,30 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v2")
 public class AuthRegController {
 
+    private UserService userService;
+
+    public AuthRegController() {
+    }
+
+    @Autowired
+    public AuthRegController(UserService userService) {
+        this.userService = userService;
+    }
+
+
     /**
      *
      * @param VKAuthData json object which has VK_token
-     * @return
+     * @return ResponseEntity that contains body's answer or information about Error with code and description in russian
      * @throws APIException
      */
     @PostMapping(path = "/auth/vk")
     public ResponseEntity<ApiAnswer> authVK(@RequestBody JSONObject VKAuthData) throws APIException {
 
+
+
         return ResponseEntity.ok().body(new ApiAnswer("5353", "kek", null));
     }
-
-
-
-
-
 
 
 

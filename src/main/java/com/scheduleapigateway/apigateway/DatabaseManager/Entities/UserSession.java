@@ -33,6 +33,13 @@ public class UserSession {
     }
 
 
+    public UserSession(String id, String lastActive, String platform, String user) {
+        this.id = id;
+        this.lastActive = lastActive;
+        this.platform = platform;
+        this.user = user;
+    }
+
     public String getId() {
         return id;
     }
