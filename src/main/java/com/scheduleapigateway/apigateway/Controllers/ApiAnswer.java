@@ -2,9 +2,11 @@ package com.scheduleapigateway.apigateway.Controllers;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class ApiAnswer<T>{
 
 
