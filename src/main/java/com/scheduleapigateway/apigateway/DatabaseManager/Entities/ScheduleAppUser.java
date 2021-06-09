@@ -1,45 +1,55 @@
-package com.scheduleapigateway.apigateway.DatabaseRepository;
+package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
 
 
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "user")
-public class User {
+public class ScheduleAppUser{
 
     @Id
+    @Column(name="id")
     private String id;
 
+
+    @Column(name="login", nullable = false, unique = true)
     private String login;
 
+    @Column(name="name")
     private String name;
 
+    @Column(name="secondname")
     private String secondName;
 
+    @Column(name="avatar_url", length = 512)
     private String avatarURL;
 
+    @Column(name="vk_id")
     private Integer vkId;
 
-    private Integer universityId;
-
+    @Column(name="cookie")
     private String cookie;
 
+    @Column(name="news", length = 8192)
     private String news;
 
+    @Column(name="external_id")
     private String externalId;
 
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<UserSession> userSessions;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private Set<Deadline> userDeadlines;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private University university;
 
 
-    public User() {
+
+    public ScheduleAppUser() {
     }
 
 
@@ -91,14 +101,6 @@ public class User {
         this.vkId = vkId;
     }
 
-    public Integer getUniversityId() {
-        return universityId;
-    }
-
-    public void setUniversityId(Integer universityId) {
-        this.universityId = universityId;
-    }
-
     public String getCookie() {
         return cookie;
     }
@@ -121,5 +123,29 @@ public class User {
 
     public void setExternalId(String externalId) {
         this.externalId = externalId;
+    }
+
+    public Set<UserSession> getUserSessions() {
+        return userSessions;
+    }
+
+    public void setUserSessions(Set<UserSession> userSessions) {
+        this.userSessions = userSessions;
+    }
+
+    public Set<Deadline> getUserDeadlines() {
+        return userDeadlines;
+    }
+
+    public void setUserDeadlines(Set<Deadline> userDeadlines) {
+        this.userDeadlines = userDeadlines;
+    }
+
+    public University getUniversity() {
+        return university;
+    }
+
+    public void setUniversity(University university) {
+        this.university = university;
     }
 }
