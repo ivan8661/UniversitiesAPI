@@ -11,6 +11,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -35,12 +36,17 @@ public class UserService {
 
         this.token = token;
 
-        JSONObject vkUser = (JSONObject) new RestTemplate().exchange("https://api.vk.com/method/account.getProfileInfo?v=5.130&access_token="
-                + token, HttpMethod.GET,new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<>(){}).getBody();
+        ResponseEntity<JSONObject> vkUserResponse =  new RestTemplate().exchange("https://api.vk.com/method/account.getProfileInfo?v=5.130&access_token="
+                + token, HttpMethod.GET,new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<>(){});
+
 
 //      vk-server timeout check
-        if(vkUser == null)
+        JSONObject vkUser;
+        if(vkUserResponse.getBody() != null)
+            vkUser = vkUserResponse.getBody();
+        else
             throw new APIException(503, "SERVICE_UNAVAILABLE", "Сервер ВКонтакте не отвечает...", "");
+
         if(vkUser.optJSONObject("error") != null)
             throw new APIException(403, "VALIDATION_ERROR", "access token vk недействителен", "");
 
@@ -71,10 +77,7 @@ public class UserService {
             JSONObject img = vkPhoto.optJSONObject("response").optJSONArray("items").optJSONObject(vkPhoto.optJSONObject("response").optJSONArray("items").length()-1);
             if(img != null)
                 return img.optString("url");
-
-            return null;
         }
+        return null;
     }
-
-
     }

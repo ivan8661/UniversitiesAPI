@@ -1,7 +1,11 @@
 package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
 
 
+import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import javax.persistence.*;
+import java.util.Optional;
 
 /**
  * @author Ivan Poltorakov
@@ -29,15 +33,15 @@ public class UserSession {
     private ScheduleAppUser user;
 
 
-    public UserSession() {
+    public UserSession(UserRepository userRepository) {
     }
 
-
-    public UserSession(String id, String lastActive, String platform, String user) {
+    @Autowired
+    public UserSession(String id, String lastActive, String platform, Optional<ScheduleAppUser> user) {
         this.id = id;
         this.lastActive = lastActive;
         this.platform = platform;
-        this.user = user;
+        user.ifPresent(scheduleAppUser -> this.user = scheduleAppUser);
     }
 
     public String getId() {

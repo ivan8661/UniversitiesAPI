@@ -2,6 +2,7 @@ package com.scheduleapigateway.apigateway.Services;
 
 
 import com.scheduleapigateway.apigateway.DatabaseManager.Entities.UserSession;
+import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserSessionRepository;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,18 +15,26 @@ public class SessionService {
 
     private UserSessionRepository userSessionRepository;
 
+    private UserRepository userRepository;
+
     @Autowired
-    public SessionService(UserSessionRepository userSessionRepository) {
+    public SessionService(UserSessionRepository userSessionRepository, UserRepository userRepository) {
         this.userSessionRepository = userSessionRepository;
+        this.userRepository = userRepository;
     }
 
     public SessionService() {
     }
 
+
+    /**
+     * @param userId
+     * @param platform ios/browser/android and etc.
+     * @return sessionId 256sha
+     */
     public String setUserSession(String userId, String platform) {
         String sessionId = DigestUtils.sha256Hex(DigestUtils.sha256Hex(String.valueOf(Instant.now().getEpochSecond())) + " " + userId);
-        userSessionRepository.save(new UserSession(sessionId,
-                Instant.now().getEpochSecond()+"", platform, userId)).getSessionId();
-
+        return userSessionRepository.save(new UserSession(sessionId,
+                Instant.now().getEpochSecond()+"", platform, userRepository.findById(userId))).getId();
     }
 }
