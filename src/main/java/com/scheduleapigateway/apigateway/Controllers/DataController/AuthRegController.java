@@ -1,5 +1,6 @@
-package com.scheduleapigateway.apigateway.Controllers;
+package com.scheduleapigateway.apigateway.Controllers.DataController;
 
+import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.DatabaseManager.Entities.ScheduleAppUser;
 import com.scheduleapigateway.apigateway.Exceptions.ErrorResult;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
@@ -44,18 +45,18 @@ public class AuthRegController {
      * @throws UserException
      */
     @PostMapping(path = "/auth/vk")
-    public ResponseEntity<ApiAnswer> authVK(@RequestBody String VKAuthData, @RequestHeader Map<String, String> headers) throws UserException {
+    public ResponseEntity<AnswerTemplate> authVK(@RequestBody String VKAuthData, @RequestHeader Map<String, String> headers) throws UserException {
         JSONObject vkData = new JSONObject(VKAuthData);
         System.out.println(vkData);
         ScheduleAppUser user = userService.vkAuthorization(new JSONObject(VKAuthData).optString("token"));
         String userSession = sessionService.setUserSession(user.getId(), headers.get("x-platform"));
-        return ResponseEntity.ok().body(new ApiAnswer(user, userSession, null));
+        return ResponseEntity.ok().body(new AnswerTemplate(user, userSession, null));
     }
 
     @PostMapping(path = "/service/drop")
-    public ResponseEntity<ApiAnswer>dropUser(@RequestHeader("X-Session-Id") String session_id) throws UserException {
+    public ResponseEntity<AnswerTemplate>dropUser(@RequestHeader("X-Session-Id") String session_id) throws UserException {
         userService.removeUser(session_id);
-        return ResponseEntity.ok().body(new ApiAnswer("successful", null));
+        return ResponseEntity.ok().body(new AnswerTemplate("successful", null));
     }
 
 

@@ -16,7 +16,6 @@ public interface UserRepository extends CrudRepository<ScheduleAppUser, String> 
 
     Optional<ScheduleAppUser> findById(String id);
 
-    ScheduleAppUser findByUserSessions(String sessionId);
 
 
 }
