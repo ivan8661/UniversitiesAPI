@@ -1,12 +1,13 @@
 package com.scheduleapigateway.apigateway.Exceptions;
 
-public class APIException extends Exception {
+
+public class UserException extends Exception {
     private int id;
     private String code;
     private String message;
     private String data;
 
-    public APIException(int id, String code, String message, String data) {
+    public UserException(int id, String code, String message, String data) {
         this.id = id;
         this.code = code;
         this.message = message;

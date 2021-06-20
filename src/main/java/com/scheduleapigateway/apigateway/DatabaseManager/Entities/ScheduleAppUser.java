@@ -2,6 +2,7 @@ package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -16,7 +17,7 @@ public class ScheduleAppUser{
     private String id;
 
 
-    @Column(name="login", nullable = false, unique = true)
+    @Column(name="login", unique = true)
     @JsonProperty("serviceLogin")
     private String login;
 
@@ -36,11 +37,8 @@ public class ScheduleAppUser{
     @JsonProperty("vkId")
     private Integer vkId;
 
-    @Column(name="cookie")
-
-    private String cookie;
-
     @Column(name="news", length = 8192)
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String news;
 
@@ -57,9 +55,11 @@ public class ScheduleAppUser{
     private String externalId;
 
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<UserSession> userSessions;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Deadline> userDeadlines;
 
@@ -137,14 +137,6 @@ public class ScheduleAppUser{
         this.vkId = vkId;
     }
 
-    public String getCookie() {
-        return cookie;
-    }
-
-    public void setCookie(String cookie) {
-        this.cookie = cookie;
-    }
-
     public String getNews() {
         return news;
     }
@@ -183,5 +175,24 @@ public class ScheduleAppUser{
 
     public void setUniversity(University university) {
         this.university = university;
+    }
+
+    @Override
+    public String toString() {
+        return "ScheduleAppUser{" +
+                "id='" + id + '\'' +
+                ", login='" + login + '\'' +
+                ", name='" + name + '\'' +
+                ", secondName='" + secondName + '\'' +
+                ", avatarURL='" + avatarURL + '\'' +
+                ", vkId=" + vkId +
+                ", news='" + news + '\'' +
+                ", AdsEnabled=" + AdsEnabled +
+                ", cookieUser='" + cookieUser + '\'' +
+                ", externalId='" + externalId + '\'' +
+                ", userSessions=" + userSessions +
+                ", userDeadlines=" + userDeadlines +
+                ", university=" + university +
+                '}';
     }
 }
