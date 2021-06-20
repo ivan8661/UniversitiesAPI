@@ -33,7 +33,7 @@ public class UserSession {
     private ScheduleAppUser user;
 
 
-    public UserSession(UserRepository userRepository) {
+    public UserSession() {
     }
 
     @Autowired

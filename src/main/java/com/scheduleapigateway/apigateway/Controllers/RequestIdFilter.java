@@ -1,14 +1,12 @@
 package com.scheduleapigateway.apigateway.Controllers;
 
 
-import com.scheduleapigateway.apigateway.ApigatewayApplication;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Enumeration;
 
 @Component
 public class RequestIdFilter implements Filter {
@@ -26,7 +24,7 @@ public class RequestIdFilter implements Filter {
         if(xSessionId == null) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
-            filterChain.doFilter(servletRequest, servletResponse);
+                filterChain.doFilter(servletRequest, response);
         }
     }
     @Override
