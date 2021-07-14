@@ -1,40 +1,48 @@
 package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import java.util.Set;
 
-@Entity
 public class University {
 
-    @Id
-    @Column(name="id")
-    private Integer id;
+    @JsonProperty("_id")
+    private String id;
 
-    @Column(name="name")
+    @JsonProperty("name")
     private String name;
 
-    @Column(name="service")
+    @JsonProperty("serviceName")
     private String service;
 
-    @Column(name="news")
-    private String news;
 
-    @Column(name="reference_date")
     private Integer referenceDate;
 
-    @Column(name="reference_week")
-    private Boolean referenceWeek;
+
+    private String referenceWeek;
+
+
 
 
     public University() {
+
     }
 
+    public University(String id, String name, String service, Integer referenceDate, String referenceWeek) {
+        this.id = id;
+        this.name = name;
+        this.service = service;
+        this.referenceDate = referenceDate;
+        this.referenceWeek = referenceWeek;
+    }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -54,14 +62,6 @@ public class University {
         this.service = service;
     }
 
-    public String getNews() {
-        return news;
-    }
-
-    public void setNews(String news) {
-        this.news = news;
-    }
-
     public Integer getReferenceDate() {
         return referenceDate;
     }
@@ -70,12 +70,11 @@ public class University {
         this.referenceDate = referenceDate;
     }
 
-    public Boolean getReferenceWeek() {
+    public String getReferenceWeek() {
         return referenceWeek;
     }
 
-    public void setReferenceWeek(Boolean referenceWeek) {
+    public void setReferenceWeek(String referenceWeek) {
         this.referenceWeek = referenceWeek;
     }
-
 }

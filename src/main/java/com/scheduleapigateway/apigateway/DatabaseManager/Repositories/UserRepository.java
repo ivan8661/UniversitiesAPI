@@ -16,6 +16,9 @@ public interface UserRepository extends CrudRepository<ScheduleAppUser, String> 
 
     Optional<ScheduleAppUser> findById(String id);
 
+    boolean existsByLogin(String login);
+
+    ScheduleAppUser findByLogin(String login);
 
 
 }

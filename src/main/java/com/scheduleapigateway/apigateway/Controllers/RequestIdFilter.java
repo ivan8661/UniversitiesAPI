@@ -18,10 +18,10 @@ public class RequestIdFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        String xSessionId = ((HttpServletRequest) servletRequest).getHeader("X-Session-Id");
+        String xRequestId = ((HttpServletRequest) servletRequest).getHeader("X-Request-Id");
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        if(xSessionId == null) {
+        if(xRequestId == null) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         } else {
                 filterChain.doFilter(servletRequest, response);
