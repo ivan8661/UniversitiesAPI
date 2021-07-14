@@ -3,6 +3,7 @@ package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -64,8 +65,19 @@ public class ScheduleAppUser{
     private Set<Deadline> userDeadlines;
 
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Transient
     private University university;
+
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty("scheduleUserId")
+    @Transient
+    private String scheduleUserId;
+
+    @Transient
+    @JsonProperty("scheduleUser")
+    private ScheduleUser scheduleUser;
+
 
 
 
@@ -88,6 +100,8 @@ public class ScheduleAppUser{
         this.avatarURL = avatarURL;
         this.vkId = vkId;
     }
+
+
 
     public String getId() {
         return id;
@@ -175,6 +189,38 @@ public class ScheduleAppUser{
 
     public void setUniversity(University university) {
         this.university = university;
+    }
+
+    public Boolean getAdsEnabled() {
+        return AdsEnabled;
+    }
+
+    public void setAdsEnabled(Boolean adsEnabled) {
+        AdsEnabled = adsEnabled;
+    }
+
+    public String getCookieUser() {
+        return cookieUser;
+    }
+
+    public void setCookieUser(String cookieUser) {
+        this.cookieUser = cookieUser;
+    }
+
+    public String getScheduleUserId() {
+        return scheduleUserId;
+    }
+
+    public void setScheduleUserId(String scheduleUserId) {
+        this.scheduleUserId = scheduleUserId;
+    }
+
+    public ScheduleUser getScheduleUser() {
+        return scheduleUser;
+    }
+
+    public void setScheduleUser(ScheduleUser scheduleUser) {
+        this.scheduleUser = scheduleUser;
     }
 
     @Override

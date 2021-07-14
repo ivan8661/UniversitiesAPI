@@ -21,16 +21,6 @@ public class DeadlineController {
 
     @Autowired
     private DeadlineService deadlineService;
-//    @PostMapping(path = "/deadlines")
-//    public ResponseEntity<GeneralAnswer> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody DeadlineRequest deadlineRequest) throws UserException {
-//        logicMethods.checkSessionId(httpHeaders.getFirst("X-Session-Id"));
-//        String userId = logicMethods.getUserObjectBySessionId(httpHeaders.getFirst("X-Session-Id")).getUserId();
-//        Deadline deadline = logicMethods.createDeadline(deadlineRequest, userId);
-//        deadline.setSubject(logicMethods.getSubject(deadlineRequest.getSubject()));
-//        log.info("Пользователь" + userId + " запросил локальные дедлайны");
-//        log.info("заголовки запроса: " + httpHeaders);
-//        return ResponseEntity.ok().body(new GeneralAnswer(deadline, null));
-//    }
 
         @PostMapping(path="/deadlines")
         public ResponseEntity<AnswerTemplate> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody String deadlineRequest) throws UserException {
