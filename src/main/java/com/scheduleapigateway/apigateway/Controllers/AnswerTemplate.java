@@ -13,6 +13,7 @@ public class AnswerTemplate<T>{
     private T error;
 
 
+    @JsonProperty("items")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<T> listResult;
 
@@ -62,6 +63,8 @@ public class AnswerTemplate<T>{
 
     public AnswerTemplate() {
     }
+
+
 
     public T getError() {
         return error;

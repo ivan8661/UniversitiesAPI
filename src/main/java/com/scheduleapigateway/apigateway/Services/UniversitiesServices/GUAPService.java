@@ -1,7 +1,7 @@
 package com.scheduleapigateway.apigateway.Services.UniversitiesServices;
 
 
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;

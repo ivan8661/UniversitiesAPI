@@ -1,25 +1,12 @@
 package com.scheduleapigateway.apigateway.Services;
 
 
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.UserSession;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserSessionRepository;
-import com.scheduleapigateway.apigateway.SchedCoreApplication;
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.ScheduleAppUser;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.UserSession;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-
-import java.time.Instant;
 
 @Service
 public class UserService {

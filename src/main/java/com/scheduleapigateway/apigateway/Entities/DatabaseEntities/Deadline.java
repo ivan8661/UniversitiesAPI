@@ -1,4 +1,4 @@
-package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
+package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -49,14 +49,14 @@ public class Deadline {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private ScheduleAppUser user;
+    private AppUser user;
 
 
 
     public Deadline() {
     }
 
-    public Deadline(String id, String name, String description, Long time, ScheduleAppUser user) {
+    public Deadline(String id, String name, String description, Long time, AppUser user) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -114,11 +114,11 @@ public class Deadline {
         this.status = status;
     }
 
-    public ScheduleAppUser getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public void setUser(ScheduleAppUser user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 

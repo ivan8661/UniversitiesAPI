@@ -1,16 +1,17 @@
-package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
+package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
+import com.scheduleapigateway.apigateway.Entities.University;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-public class ScheduleAppUser{
+public class AppUser {
 
     @Id
     @Column(name="id")
@@ -81,10 +82,10 @@ public class ScheduleAppUser{
 
 
 
-    public ScheduleAppUser() {
+    public AppUser() {
     }
 
-    public ScheduleAppUser(String id, String login, String name, String secondName, String avatarURL, Integer vkId) {
+    public AppUser(String id, String login, String name, String secondName, String avatarURL, Integer vkId) {
         this.id = id;
         this.login = login;
         this.name = name;
@@ -93,7 +94,7 @@ public class ScheduleAppUser{
         this.vkId = vkId;
     }
 
-    public ScheduleAppUser(String id, String name, String secondName, String avatarURL, Integer vkId) {
+    public AppUser(String id, String name, String secondName, String avatarURL, Integer vkId) {
         this.id = id;
         this.name = name;
         this.secondName = secondName;

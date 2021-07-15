@@ -1,19 +1,16 @@
 package com.scheduleapigateway.apigateway.Services;
 
 
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.Deadline;
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.ScheduleAppUser;
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.UserSession;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.DeadlineRepository;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserSessionRepository;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.UserSession;
+import com.scheduleapigateway.apigateway.Entities.Repositories.DeadlineRepository;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class DeadlineService {

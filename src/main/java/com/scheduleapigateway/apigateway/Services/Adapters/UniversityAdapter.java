@@ -2,8 +2,8 @@ package com.scheduleapigateway.apigateway.Services.Adapters;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.ScheduleAppUser;
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.ScheduleUser;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
+import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class UniversityAdapter {
 
 
 
-    public ScheduleAppUser auth() {
+    public AppUser auth() {
 
         return null;
     }

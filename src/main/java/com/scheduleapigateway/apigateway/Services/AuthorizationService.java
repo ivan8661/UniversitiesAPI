@@ -1,9 +1,8 @@
 package com.scheduleapigateway.apigateway.Services;
 
 
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.ScheduleAppUser;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserSessionRepository;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
 import com.scheduleapigateway.apigateway.Services.UniversitiesServices.GUAPService;
@@ -40,7 +39,7 @@ public class AuthorizationService {
     }
 
     @Transactional
-    public ScheduleAppUser vkAuthorization(String token) throws UserException {
+    public AppUser vkAuthorization(String token) throws UserException {
 
         this.token = token;
 
@@ -84,11 +83,11 @@ public class AuthorizationService {
         String lastName = vkUser.optString("last_name");
         String avatarURL = getAvatarURL();
         SchedCoreApplication.getLogger().info("произошло создание нового пользователя: " +
-                userRepository.save(new ScheduleAppUser(DigestUtils.sha256Hex(id + " " + Instant.now().getEpochSecond()), firstName, lastName, avatarURL, id)));
+                userRepository.save(new AppUser(DigestUtils.sha256Hex(id + " " + Instant.now().getEpochSecond()), firstName, lastName, avatarURL, id)));
     }
 
 
-    public ScheduleAppUser getGUAPUser(String login, String password) throws UserException {
+    public AppUser getGUAPUser(String login, String password) throws UserException {
         String cookie = guapService.getCookie(login, password);
 
 
@@ -140,7 +139,7 @@ public class AuthorizationService {
 
 
 
-        return new ScheduleAppUser();
+        return new AppUser();
 
     }
 

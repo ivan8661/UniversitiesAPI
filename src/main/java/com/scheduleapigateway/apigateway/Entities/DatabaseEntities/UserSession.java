@@ -1,7 +1,6 @@
-package com.scheduleapigateway.apigateway.DatabaseManager.Entities;
+package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
@@ -30,14 +29,14 @@ public class UserSession {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private ScheduleAppUser user;
+    private AppUser user;
 
 
     public UserSession() {
     }
 
     @Autowired
-    public UserSession(String id, String lastActive, String platform, Optional<ScheduleAppUser> user) {
+    public UserSession(String id, String lastActive, String platform, Optional<AppUser> user) {
         this.id = id;
         this.lastActive = lastActive;
         this.platform = platform;
@@ -68,11 +67,11 @@ public class UserSession {
         this.platform = platform;
     }
 
-    public ScheduleAppUser getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public void setUser(ScheduleAppUser user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 
