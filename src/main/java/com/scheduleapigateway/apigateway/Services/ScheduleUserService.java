@@ -45,7 +45,6 @@ public class ScheduleUserService {
 
         if(entity.getStatusCode().is2xxSuccessful()) {
             JSONObject scheduleUserJson = new JSONObject(entity.getBody());
-
             return new ScheduleUser(scheduleUserJson.optString("_id"), scheduleUserJson.optString("name"), university);
         } else {
             throw new UserException(entity.getStatusCodeValue(),
@@ -79,9 +78,5 @@ public class ScheduleUserService {
                     entity.getStatusCodeValue() + " ", "Service" + application.getName() + " Error", " ");
         }
         return scheduleUsers;
-
     }
-
-
-
 }
