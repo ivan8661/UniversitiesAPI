@@ -29,6 +29,11 @@ public class Group {
         this.universityGroupId = universityGroupId;
     }
 
+    public Group(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public String getId() {
         return id;
     }

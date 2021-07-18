@@ -1,13 +1,9 @@
 package com.scheduleapigateway.apigateway.Controllers;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
-import org.springframework.stereotype.Component;
 
-import java.util.List;
 
-@Component
 public class AnswerTemplate<T>{
 
 
@@ -61,4 +57,6 @@ public class AnswerTemplate<T>{
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
+
+
 }

@@ -28,7 +28,6 @@ public class DeadlineService {
 
     public Deadline createOrUpdateDeadline(String sessionId, String bodyDeadline) throws UserException {
 
-
         UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
         if(userSession == null)
             throw new UserException(404, "404", "Пользователь не найден", "");
@@ -40,7 +39,6 @@ public class DeadlineService {
         Long date = deadline.optLong("date");
         String id = DigestUtils.sha256Hex(date+subject+title);
         String description = deadline.optString("description");
-
 
         /*
             If deadline exist, use PUT update!
@@ -59,7 +57,7 @@ public class DeadlineService {
         return deadlineRepository.save(new Deadline(id, title, description, date, creation, userSession.getUser(), subject, false));
     }
 
-    public String closeDeadline(String sessionId, String deadlineId) throws UserException {
+    public String restartOrCloseDeadline(String sessionId, String deadlineId, boolean close) throws UserException {
 
         UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
         if(userSession == null) {
@@ -68,16 +66,14 @@ public class DeadlineService {
 
         Optional<Deadline> optDeadline = deadlineRepository.findById(deadlineId);
 
-
         if(optDeadline.isPresent()){
             Deadline deadline = optDeadline.get();
-            deadline.setClosed(true);
+            deadline.setClosed(close);
             deadlineRepository.save(deadline);
             return "successful";
         } else {
             throw new UserException(404, "404", "deadline doesn't exist!", " ");
         }
     }
-
 
 }

@@ -32,7 +32,14 @@ public class ScheduleUserService {
         this.eurekaInstance = eurekaInstance;
     }
 
-
+    /**
+     *
+     * @param universityId university Id (String, example:GUAP)
+     * @param scheduleType professors or groups
+     * @param scheduleUserId parameter for services
+     * @return scheduleUser
+     * @throws UserException default custom exception
+     */
     public ScheduleUser getScheduleUser(String universityId, String scheduleType, String scheduleUserId) throws UserException {
 
         Application application = eurekaInstance.getApplication(universityId);

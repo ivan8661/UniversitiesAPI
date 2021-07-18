@@ -25,13 +25,14 @@ public class DeadlineController {
 
         @PostMapping(path="/deadlines/{deadlineId}/close")
         public ResponseEntity<AnswerTemplate<String>> closeDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
-            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.closeDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
+            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, true), null));
         }
 
-//        @DeleteMapping(path="/deadlines/{deadlineId}/close")
-//        public ResponseEntity<AnswerTemplate<String>> restartDeadline(@RequestHeader HttpHeaders httpHeaders,
-//                                                                      @PathVariable("deadlineId") String deadlineId) {
-//
-//        }
+
+        @DeleteMapping(path="/deadlines/{deadlineId}/close")
+        public ResponseEntity<AnswerTemplate<String>> restartDeadline(@RequestHeader HttpHeaders httpHeaders,
+                                                                      @PathVariable("deadlineId") String deadlineId) throws UserException {
+            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, false), null));
+        }
 
 }

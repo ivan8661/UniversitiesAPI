@@ -2,16 +2,25 @@ package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
+import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import com.scheduleapigateway.apigateway.Services.UniversitiesServices.UniversityService;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class AppUser {
+
+
 
     @Id
     @Column(name="id")
@@ -22,6 +31,10 @@ public class AppUser {
     @Column(name="login", unique = true)
     @JsonProperty("serviceLogin")
     private String login;
+
+    @Column(name="password")
+    @JsonProperty("servicePassword")
+    private String password;
 
     @Column(name="name")
     @JsonProperty("firstName")
@@ -40,13 +53,12 @@ public class AppUser {
     private Integer vkId;
 
     @Column(name="news", length = 8192)
-
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String news;
 
     @JsonProperty("isAdsEnabled")
-    @Column(name = "ads_enabled")
-    private Boolean AdsEnabled;
+    @Column(name = "ads_enabled", columnDefinition="tinyint(1) default 0")
+    private boolean AdsEnabled;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "cookie_user")
@@ -58,20 +70,23 @@ public class AppUser {
 
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Set<UserSession> userSessions;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Set<Deadline> userDeadlines;
-
 
     @Transient
     private University university;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(name="university_id")
+    private String universityId;
+
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty("scheduleUserId")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Transient
     private String scheduleUserId;
 
@@ -102,7 +117,19 @@ public class AppUser {
         this.vkId = vkId;
     }
 
-
+    public AppUser(String id, String login, String password, String name,
+                   String secondName, String universityId,
+                   String scheduleUserId, ScheduleUser scheduleUser, University university) {
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.name = name;
+        this.secondName = secondName;
+        this.universityId = universityId;
+        this.scheduleUserId = scheduleUserId;
+        this.scheduleUser = scheduleUser;
+        this.university = university;
+    }
 
     public String getId() {
         return id;
@@ -184,7 +211,7 @@ public class AppUser {
         this.userDeadlines = userDeadlines;
     }
 
-    public University getUniversity() {
+    public University getUniversity() throws UserException {
         return university;
     }
 
@@ -192,11 +219,11 @@ public class AppUser {
         this.university = university;
     }
 
-    public Boolean getAdsEnabled() {
+    public Boolean getIsAdsEnabled() {
         return AdsEnabled;
     }
 
-    public void setAdsEnabled(Boolean adsEnabled) {
+    public void setIsAdsEnabled(Boolean adsEnabled) {
         AdsEnabled = adsEnabled;
     }
 
@@ -222,6 +249,14 @@ public class AppUser {
 
     public void setScheduleUser(ScheduleUser scheduleUser) {
         this.scheduleUser = scheduleUser;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

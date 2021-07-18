@@ -1,7 +1,7 @@
 package com.scheduleapigateway.apigateway;
 
 
-import com.scheduleapigateway.apigateway.Controllers.DataController.AuthRegController;
+import com.scheduleapigateway.apigateway.Controllers.DataController.UserController;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ public class APIGatewayAuthorizationTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
-    private AuthRegController authRegController;
+    private UserController authRegController;
 
     @Test
     public void givenVKToken_whenGetUserInfo_thenInfoAboutUser() throws Exception {
