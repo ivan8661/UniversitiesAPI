@@ -20,8 +20,18 @@ public class DeadlineController {
 
         @PostMapping(path="/deadlines")
         public ResponseEntity<AnswerTemplate<Deadline>> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody String deadlineRequest) throws UserException {
-        Deadline deadline = deadlineService.createDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineRequest);
-        return ResponseEntity.ok().body(new AnswerTemplate<>(deadline, null));
+            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.createOrUpdateDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineRequest), null));
         }
+
+        @PostMapping(path="/deadlines/{deadlineId}/close")
+        public ResponseEntity<AnswerTemplate<String>> closeDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
+            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.closeDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
+        }
+
+//        @DeleteMapping(path="/deadlines/{deadlineId}/close")
+//        public ResponseEntity<AnswerTemplate<String>> restartDeadline(@RequestHeader HttpHeaders httpHeaders,
+//                                                                      @PathVariable("deadlineId") String deadlineId) {
+//
+//        }
 
 }

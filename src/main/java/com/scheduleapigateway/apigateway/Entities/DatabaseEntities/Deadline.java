@@ -1,6 +1,8 @@
 package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.json.JSONObject;
 
@@ -30,21 +32,14 @@ public class Deadline {
     @JsonProperty("startDate")
     private Long creation;
 
-    @Column(name= "status")
-    private String status;
-
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(name= "is_closed")
     private Boolean isClosed;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(name= "is_external")
+    private Boolean isExternal;
+
     @Column(name = "subject_id")
     private String subjectId;
-
-    @Transient
-    private JSONObject subject;
-
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -56,14 +51,16 @@ public class Deadline {
     public Deadline() {
     }
 
-    public Deadline(String id, String name, String description, Long time, AppUser user) {
+    public Deadline(String id, String name, String description, Long time, Long creation, AppUser user, String subjectId, boolean isExternal) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.time = time;
-        this.creation = Instant.now().getEpochSecond();
+        this.creation = creation;
         this.user = user;
-        this.status = "open";
+        isClosed = creation >= time;
+        this.subjectId = subjectId;
+        this.isExternal = isExternal;
     }
 
     public String getId() {
@@ -106,13 +103,6 @@ public class Deadline {
         this.creation = creation;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
     public AppUser getUser() {
         return user;
@@ -123,10 +113,6 @@ public class Deadline {
     }
 
 
-    public void setClosed(Boolean closed) {
-        isClosed = closed;
-    }
-
     public String getSubjectId() {
         return subjectId;
     }
@@ -135,11 +121,19 @@ public class Deadline {
         this.subjectId = subjectId;
     }
 
-    public JSONObject getSubject() {
-        return subject;
+    public Boolean getClosed() {
+        return isClosed;
     }
 
-    public void setSubject(JSONObject subject) {
-        this.subject = subject;
+    public void setClosed(Boolean closed) {
+        isClosed = closed;
+    }
+
+    public Boolean getExternal() {
+        return isExternal;
+    }
+
+    public void setExternal(Boolean external) {
+        isExternal = external;
     }
 }

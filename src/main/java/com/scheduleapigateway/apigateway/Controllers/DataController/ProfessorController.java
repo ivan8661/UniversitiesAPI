@@ -2,6 +2,7 @@ package com.scheduleapigateway.apigateway.Controllers.DataController;
 
 
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
+import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Services.ScheduleUserService;
@@ -23,8 +24,8 @@ public class ProfessorController {
     }
 
     @GetMapping("/universities/{universityId}/professors/")
-    public ResponseEntity<AnswerTemplate<ScheduleUser>> getProfessors(@PathVariable("universityId") String universityId) throws UserException {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(scheduleUserService.getScheduleUsers(universityId, "professors"), null));
+    public ResponseEntity<AnswerTemplate<ListAnswer<ScheduleUser>>> getProfessors(@PathVariable("universityId") String universityId) throws UserException {
+        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer<>(scheduleUserService.getScheduleUsers(universityId, "professors")), null));
     }
 
     @GetMapping("/universities/{universityId}/professors/{professorId}")

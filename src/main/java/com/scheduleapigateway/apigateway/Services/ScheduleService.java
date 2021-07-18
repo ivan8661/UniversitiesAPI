@@ -3,6 +3,7 @@ package com.scheduleapigateway.apigateway.Services;
 
 import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Lesson;
+import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
@@ -30,7 +31,7 @@ public class ScheduleService {
         Application application = eurekaInstance.getApplication(universityId);
 
         ResponseEntity<LinkedList<Lesson>> lessons =  new RestTemplate().exchange(
-                application.getInstances().get(0).getHomePageUrl() + "lessons/" + scheduleUserId,
+                application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId,
                 HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<LinkedList<Lesson>>() {});
 
         if(lessons.getStatusCode().is2xxSuccessful()){
@@ -41,4 +42,37 @@ public class ScheduleService {
         }
     }
 
+    public Lesson getLesson(String universityId, String lessonId) throws UserException {
+
+        Application application = eurekaInstance.getApplication(universityId);
+
+        ResponseEntity<Lesson> lesson = new RestTemplate().exchange(
+                application.getInstances().get(0).getHomePageUrl() + "lessons/" + lessonId,
+                HttpMethod.GET, HttpEntity.EMPTY, Lesson.class
+        );
+
+        if(lesson.getStatusCode().is2xxSuccessful()) {
+            return lesson.getBody();
+        } else {
+            throw new UserException(lesson.getStatusCodeValue(),
+                    lesson.getStatusCodeValue() + " ", "Service" + application.getName() + " Error", " ");
+        }
+    }
+
+    public Subject getSubject(String universityId, String subjectId) throws UserException {
+
+        Application application = eurekaInstance.getApplication(universityId);
+
+        ResponseEntity<Subject> subject = new RestTemplate().exchange(
+                application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
+                HttpMethod.GET, HttpEntity.EMPTY, Subject.class
+        );
+
+        if(subject.getStatusCode().is2xxSuccessful()) {
+            return subject.getBody();
+        } else {
+            throw new UserException(subject.getStatusCodeValue(),
+                    subject.getStatusCodeValue() + " ", "Service" + application.getName() + " Error", " ");
+        }
+    }
 }
