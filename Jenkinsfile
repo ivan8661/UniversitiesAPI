@@ -20,5 +20,11 @@ pipeline {
                         bat 'docker build --tag core . '     
                            }
                 }
+                
+                stage('Build') { 
+            steps {
+                sh 'mvn install' 
+                        }
+                }
             }
     }
