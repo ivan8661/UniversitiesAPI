@@ -16,6 +16,7 @@ pipeline {
 
             stage('Build') { 
                     steps {
+                            bat 'mvn -v'
                             bat 'mvn dependency:tree'
                             bat 'mvn install'
                           }
