@@ -11,15 +11,7 @@ pipeline {
                 buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
                 timestamps()
             }
-            
-            node {
-              stage ('Build') {
-                withMaven {
-                  sh "mvn clean install"
-                } // withMaven will discover the generated Maven artifacts, JUnit Surefire & FailSafe reports and FindBugs reports
-              }
-                }
-
+           
             stages {
                         
                         
