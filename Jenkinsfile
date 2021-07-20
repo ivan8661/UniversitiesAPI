@@ -18,7 +18,7 @@ pipeline {
                     steps {
                         echo " ========= start building image ========"
                         dir("dockerImages") {
-                            sh 'docker build --tag core . '
+                            bat 'docker build --tag core . '
                                  }
                            }
                 }
