@@ -17,9 +17,7 @@ pipeline {
                 stage('create docker image') {
                     steps {
                         echo " ========= start building image ========"
-                        dir("dockerImages") {
-                            bat 'docker build --tag core . '
-                                 }
+                        bat 'docker build --tag core . '     
                            }
                 }
             }
