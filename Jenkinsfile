@@ -14,6 +14,12 @@ pipeline {
 
             stages {
 
+            stage('Build') { 
+                    steps {
+                            sh 'mvn install' 
+                          }
+                        }
+                        
                 stage('create docker image') {
                     steps {
                         echo " ========= start building image ========"
@@ -21,10 +27,6 @@ pipeline {
                            }
                 }
                 
-                stage('Build') { 
-            steps {
-                sh 'mvn install' 
-                        }
-                }
+                
             }
     }
