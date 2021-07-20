@@ -3,12 +3,17 @@ properties([disableConcurrentBuilds()])
 
 pipeline {
 
-
-    withMaven(maven:'maven') {
-
-        stage('Checkout') {
-            git url: 'https://github.com/ivan8661/UniversitiesAPI.git', credentialsId: 'github-ivan8661', branch: 'dev'
+        agent {
+            label 'dev'
         }
+
+        options {
+            buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+            timestamps()
+        }
+
+        stages {
+
 
         stage('Build') {
             sh 'mvn clean install'
@@ -17,21 +22,15 @@ pipeline {
             env.version = pom.version
         }
 
-        stage('Image') {
-            dir ('core') {
-                def app = docker.build "localhost:5000/discovery-service:${env.version}"
-                app.push()
+        stage('create docker image') {
+            steps {
+                echo " ========= start building image ========"
+                dir("dockerImages") {
+                    sh 'docker build --tag core . '
+                }
             }
         }
-
-        stage ('Run') {
-            docker.image("localhost:5000/discovery-service:${env.version}").run('-p 8761:8761 -h discovery --name discovery')
         }
-
-        stage ('Final') {
-            build job: 'core-pipeline', wait: false
-        }
-
     }
 
 }
