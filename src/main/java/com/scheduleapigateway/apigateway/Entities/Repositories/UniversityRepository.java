@@ -1,6 +1,6 @@
-package com.scheduleapigateway.apigateway.DatabaseManager.Repositories;
+package com.scheduleapigateway.apigateway.Entities.Repositories;
 
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.University;
+import com.scheduleapigateway.apigateway.Entities.University;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

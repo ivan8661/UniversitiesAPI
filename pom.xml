@@ -102,11 +102,8 @@
 
     </dependencies>
 
-
-
-
-
     <build>
+        <finalName>core</finalName>
         <plugins>
             <plugin>
                 <groupId>org.asciidoctor</groupId>

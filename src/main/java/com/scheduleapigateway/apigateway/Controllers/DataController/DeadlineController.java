@@ -2,17 +2,13 @@ package com.scheduleapigateway.apigateway.Controllers.DataController;
 
 
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.Deadline;
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.ScheduleAppUser;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Services.DeadlineService;
-import com.scheduleapigateway.apigateway.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.xml.transform.Templates;
 
 @ControllerAdvice
 @RestController
@@ -23,9 +19,20 @@ public class DeadlineController {
     private DeadlineService deadlineService;
 
         @PostMapping(path="/deadlines")
-        public ResponseEntity<AnswerTemplate> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody String deadlineRequest) throws UserException {
-        Deadline deadline = deadlineService.createDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineRequest);
-        return ResponseEntity.ok().body(new AnswerTemplate(deadline, null));
+        public ResponseEntity<AnswerTemplate<Deadline>> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody String deadlineRequest) throws UserException {
+            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.createOrUpdateDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineRequest), null));
+        }
+
+        @PostMapping(path="/deadlines/{deadlineId}/close")
+        public ResponseEntity<AnswerTemplate<String>> closeDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
+            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, true), null));
+        }
+
+
+        @DeleteMapping(path="/deadlines/{deadlineId}/close")
+        public ResponseEntity<AnswerTemplate<String>> restartDeadline(@RequestHeader HttpHeaders httpHeaders,
+                                                                      @PathVariable("deadlineId") String deadlineId) throws UserException {
+            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, false), null));
         }
 
 }

@@ -1,9 +1,9 @@
 package com.scheduleapigateway.apigateway.Services;
 
 
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.UserSession;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserSessionRepository;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.UserSession;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

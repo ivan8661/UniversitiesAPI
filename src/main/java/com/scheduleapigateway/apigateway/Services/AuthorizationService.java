@@ -1,12 +1,10 @@
 package com.scheduleapigateway.apigateway.Services;
 
 
-import com.scheduleapigateway.apigateway.DatabaseManager.Entities.ScheduleAppUser;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserRepository;
-import com.scheduleapigateway.apigateway.DatabaseManager.Repositories.UserSessionRepository;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
-import com.scheduleapigateway.apigateway.Services.UniversitiesServices.GUAPService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +27,14 @@ public class AuthorizationService {
 
     private final UserRepository userRepository;
 
-    private final GUAPService guapService;
-
-
 
     @Autowired
-    public AuthorizationService(UserRepository userRepository, GUAPService guapService) {
+    public AuthorizationService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.guapService = guapService;
     }
 
     @Transactional
-    public ScheduleAppUser vkAuthorization(String token) throws UserException {
+    public AppUser vkAuthorization(String token) throws UserException {
 
         this.token = token;
 
@@ -84,67 +78,8 @@ public class AuthorizationService {
         String lastName = vkUser.optString("last_name");
         String avatarURL = getAvatarURL();
         SchedCoreApplication.getLogger().info("произошло создание нового пользователя: " +
-                userRepository.save(new ScheduleAppUser(DigestUtils.sha256Hex(id + " " + Instant.now().getEpochSecond()), firstName, lastName, avatarURL, id)));
+                userRepository.save(new AppUser(DigestUtils.sha256Hex(id + " " + Instant.now().getEpochSecond()), firstName, lastName, avatarURL, id)));
     }
-
-
-    public ScheduleAppUser getGUAPUser(String login, String password) throws UserException {
-        String cookie = guapService.getCookie(login, password);
-
-
-        HttpHeaders httpHeaders =new HttpHeaders();
-        httpHeaders.add("Cookie", cookie);
-
-        ResponseEntity<String> userInfoEntity = new RestTemplate().exchange("https://pro.guap.ru/inside_s",
-                HttpMethod.GET, new HttpEntity<>(httpHeaders), String.class);
-
-
-
-        String userInfo =userInfoEntity.getBody();
-        String start = "window.__initialServerData = ";
-        if (userInfo != null) {
-            userInfo = userInfo.substring(userInfo.indexOf(start) + start.length());
-            userInfo = userInfo.substring(0, userInfo.indexOf(';'));
-        }
-        JSONObject userInfoGson = new JSONObject(userInfo);
-        JSONObject userGuap = userInfoGson.getJSONArray("user").getJSONObject(0);
-
-
-        /**
-         * get grop through query to pro.guap by id
-         */
-        ResponseEntity<String> userAnswer = new RestTemplate().exchange("https://pro.guap.ru/getstudentprofile/" + userGuap.get("user_id"),
-                HttpMethod.GET, new HttpEntity<>(httpHeaders), String.class);
-        JSONObject userAnswerGson = new JSONObject(userAnswer.getBody());
-        String numberGroup = userAnswerGson.getJSONObject("user").getString("grnum");
-        /**_________________________________________*/
-
-//        ScheduleAppUser user = new ScheduleAppUser(DigestUtils.sha256Hex(login), login, password, userGuap.optString("lastname"),
-//                userGuap.optString("firstname") , )
-
-
-
-//        User user = new User(DigestUtils.sha256Hex(login), login, password, userGuap.getString("lastname"), userGuap.getString("firstname"), "1", cookie,
-//                universityRepository.findByUniversityId("1").get(0), groupRepository.findByGroupName(numberGroup).getGroupId(), userGuap.getString("user_id"));
-//        user.setUserNews(universityRepository.findByUniversityId("1").get(0).getJSONuniversityNews());
-//        user.setCookieUser(cookie);
-//        userRepository.save(user);
-//        userGroupRepository.save(new UserGroup(DigestUtils.sha256Hex(login), groupRepository.findByGroupName(numberGroup).getGroupId()));
-
-
-
-
-
-
-
-
-
-
-        return new ScheduleAppUser();
-
-    }
-
-
 
     /**
      * pick the first and the biggest avatar vk

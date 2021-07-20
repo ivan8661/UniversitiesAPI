@@ -4,7 +4,10 @@ import com.scheduleapigateway.apigateway.Exceptions.ErrorResult;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
+
+@ControllerAdvice
 public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(UserException.class)
@@ -15,6 +18,8 @@ public class ExceptionHandler {
             return new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.NOT_FOUND);
         if(us.getCode().equals("406"))
             return new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.NOT_ACCEPTABLE);
+        if(us.getCode().equals("400"))
+            return new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
