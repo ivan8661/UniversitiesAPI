@@ -18,7 +18,7 @@ pipeline {
                     steps {
                             bat 'mvn -v'
                             bat 'mvn dependency:tree'
-                            bat 'mvn install'
+                            bat 'mvn -D.maven.test.skip=true install'
                           }
                         }
                         
