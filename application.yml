@@ -2,7 +2,7 @@ spring:
   application:
     name: spring-cloud-eureka-core
 server:
-  port: 8076
+  port: 8090
 eureka:
   client:
     serviceUrl:
