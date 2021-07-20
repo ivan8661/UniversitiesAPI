@@ -18,9 +18,11 @@ pipeline {
 
             stage('Build') { 
                         steps {
+                                    withMaven {
                                         bat 'mvn -v'
                                         bat 'mvn dependency:tree'
                                         bat 'mvn clean verify'
+                                    }
                               }
             }
                 stage('create docker image') {
