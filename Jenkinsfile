@@ -13,11 +13,14 @@ pipeline {
         }
 
         stages {
+        
             stage('Build') {
-                sh 'mvn clean install'
-                def pom = readMavenPom file:'pom.xml'
-                print pom.version
-                env.version = pom.version
+                steps {
+                    sh 'mvn clean install'
+                    def pom = readMavenPom file:'pom.xml'
+                    print pom.version
+                    env.version = pom.version
+                }
             }
 
             stage('create docker image') {
