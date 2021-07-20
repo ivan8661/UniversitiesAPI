@@ -15,7 +15,7 @@ pipeline {
             stages {
 
             stage('Build') { 
-                    steps {
+                    withMaven {
                             bat 'mvn -v'
                             bat 'mvn dependency:tree'
                             bat 'mvn -D.maven.test.skip=true install'
