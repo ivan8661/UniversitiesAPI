@@ -28,7 +28,8 @@ pipeline {
                 stage('create docker image') {
                     steps {
                         echo " ========= start building image ========"
-                        bat 'docker build --tag core . '     
+                        bat 'docker build --tag core . '
+                        bat 'docker-compose.yml up'
                            }
                 }
                 
