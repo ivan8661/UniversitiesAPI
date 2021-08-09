@@ -21,6 +21,7 @@ public class Professor {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String professorUniversityId;
 
+
     public Professor() {
     }
 

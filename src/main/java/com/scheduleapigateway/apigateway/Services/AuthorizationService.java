@@ -50,9 +50,6 @@ public class AuthorizationService {
             throw new UserException(503, "SERVICE_UNAVAILABLE", "Сервер ВКонтакте не отвечает...", "");
 
 
-        System.out.println("воркает");
-
-
         if(vkUser.optJSONObject("error") != null || vkUser.optJSONObject("response") == null)
             throw new UserException(403, "VALIDATION_ERROR", "access token vk недействителен", "");
 

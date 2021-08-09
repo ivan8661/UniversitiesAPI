@@ -1,4 +1,4 @@
-package com.scheduleapigateway.apigateway.Services.UniversitiesServices;
+package com.scheduleapigateway.apigateway.Services;
 
 import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Entities.University;

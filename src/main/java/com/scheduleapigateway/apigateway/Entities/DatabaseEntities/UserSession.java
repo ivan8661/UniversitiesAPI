@@ -7,8 +7,8 @@ import javax.persistence.*;
 import java.util.Optional;
 
 /**
- * @author Ivan Poltorakov
- * @since api/v1
+ * @author Poltorakov
+ * entity of user's session
  */
 
 

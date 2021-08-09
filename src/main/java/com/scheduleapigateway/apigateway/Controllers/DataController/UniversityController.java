@@ -5,7 +5,7 @@ import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
-import com.scheduleapigateway.apigateway.Services.UniversitiesServices.UniversityService;
+import com.scheduleapigateway.apigateway.Services.UniversityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

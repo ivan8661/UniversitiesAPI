@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class ScheduleController {
 
 
-    private ScheduleService scheduleService;
+    private final ScheduleService scheduleService;
 
 
     @Autowired

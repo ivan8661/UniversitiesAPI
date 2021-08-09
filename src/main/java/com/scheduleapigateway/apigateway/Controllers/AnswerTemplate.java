@@ -3,31 +3,26 @@ package com.scheduleapigateway.apigateway.Controllers;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 
-
+/**
+ * Class for template of answer by the view:
+ * {
+ *  result: {}
+ *  error: {}
+ *  }
+ * @author Poltorakov
+ * @param <T> Generic for different objects
+ */
 public class AnswerTemplate<T>{
 
 
-    private T Result;
+    private T result;
 
-    private UserException Error;
+    private T error;
 
-
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String sessionId;
-
-
-    public AnswerTemplate(T result, UserException error) {
-        Result = result;
-        Error = error;
+    public AnswerTemplate(T result, T error) {
+        this.result = result;
+        this.error = error;
     }
-
-    public AnswerTemplate(T result,  String sessionId, UserException error) {
-        Result = result;
-        Error = error;
-        this.sessionId = sessionId;
-    }
-
 
 
     public AnswerTemplate() {
@@ -35,28 +30,18 @@ public class AnswerTemplate<T>{
     }
 
     public T getResult() {
-        return Result;
+        return result;
     }
 
     public void setResult(T result) {
-        Result = result;
+        this.result = result;
     }
 
-    public UserException getError() {
-        return Error;
+    public T getError() {
+        return error;
     }
 
-    public void setError(UserException error) {
-        Error = error;
+    public void setError(T error) {
+        this.error = error;
     }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
-
-
 }

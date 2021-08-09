@@ -2,20 +2,20 @@ package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
-import com.scheduleapigateway.apigateway.Services.UniversitiesServices.UniversityService;
-import org.hibernate.annotations.ColumnDefault;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.util.Set;
 
+/**
+ * @author Poltorakov
+ * entity of application user
+ */
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class AppUser {
@@ -70,11 +70,11 @@ public class AppUser {
 
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<UserSession> userSessions;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Deadline> userDeadlines;
 
     @Transient
@@ -87,7 +87,7 @@ public class AppUser {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Transient
+    @Column(name="schedule_user_id")
     private String scheduleUserId;
 
     @Transient
@@ -197,6 +197,22 @@ public class AppUser {
 
     public Set<UserSession> getUserSessions() {
         return userSessions;
+    }
+
+    public boolean isAdsEnabled() {
+        return AdsEnabled;
+    }
+
+    public void setAdsEnabled(boolean adsEnabled) {
+        AdsEnabled = adsEnabled;
+    }
+
+    public String getUniversityId() {
+        return universityId;
+    }
+
+    public void setUniversityId(String universityId) {
+        this.universityId = universityId;
     }
 
     public void setUserSessions(Set<UserSession> userSessions) {

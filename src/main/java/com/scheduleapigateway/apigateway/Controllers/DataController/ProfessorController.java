@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @ControllerAdvice
 @RestController
 @RequestMapping("api/v2")
@@ -23,19 +25,19 @@ public class ProfessorController {
         this.scheduleUserService = scheduleUserService;
     }
 
-    @GetMapping("/universities/{universityId}/professors/")
-    public ResponseEntity<AnswerTemplate<ListAnswer<ScheduleUser>>> getProfessors(@PathVariable("universityId") String universityId) throws UserException {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer<>(scheduleUserService.getScheduleUsers(universityId, "professors")), null));
+    @GetMapping("/universities/{universityId}/professors")
+    public ResponseEntity<AnswerTemplate<ListAnswer<ScheduleUser>>> getProfessors(@PathVariable("universityId") String universityId,
+                                                                                  @RequestParam Map<String, String> params) throws UserException {
+        return ResponseEntity.ok().body(new AnswerTemplate<>
+                                       (new ListAnswer<>
+                        (scheduleUserService.getScheduleUsers(universityId,
+                                scheduleUserService.getParamsFromMap(params), "professors")),
+                                               null));
     }
 
     @GetMapping("/universities/{universityId}/professors/{professorId}")
     public ResponseEntity<AnswerTemplate<ScheduleUser>> getProfessor(@PathVariable("universityId") String universityId,
                                                                      @PathVariable("professorId") String professorId) throws UserException {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(scheduleUserService.getScheduleUser(universityId, "professors", professorId), null));
+        return ResponseEntity.ok().body(new AnswerTemplate<>(scheduleUserService.getScheduleUser(universityId, professorId), null));
     }
-
-
-
-
-
 }
