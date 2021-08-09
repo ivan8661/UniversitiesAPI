@@ -1,13 +1,16 @@
 package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import GetGraphQL.SearchableField;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.json.JSONObject;
+import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 
 import javax.persistence.*;
-import java.time.Instant;
+
+/**
+ * @author Poltorakov
+ * deadline class
+ */
 
 @Entity
 public class Deadline {
@@ -19,26 +22,31 @@ public class Deadline {
 
     @Column(name="name")
     @JsonProperty("title")
-    private String name;
+    @SearchableField
+    private String title;
 
     @Column(name="description", length = 1024)
+    @SearchableField
     private String description;
 
     @Column(name="time")
     @JsonProperty("endDate")
-    private Long time;
+    private Long endDate;
 
     @Column(name = "creation")
     @JsonProperty("startDate")
-    private Long creation;
+    private Long startDate;
 
     @Column(name= "is_closed")
+    @JsonProperty("isClosed")
     private Boolean isClosed;
 
     @Column(name= "is_external")
+    @JsonProperty("isExternal")
     private Boolean isExternal;
 
     @Column(name = "subject_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String subjectId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,19 +54,22 @@ public class Deadline {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private AppUser user;
 
+    @Transient
+    private Subject subject;
 
 
     public Deadline() {
+        this.isClosed=false;
     }
 
-    public Deadline(String id, String name, String description, Long time, Long creation, AppUser user, String subjectId, boolean isExternal) {
+    public Deadline(String id, String title, String description, Long endDate, Long creation, AppUser user, String subjectId, boolean isExternal) {
         this.id = id;
-        this.name = name;
+        this.title = title;
         this.description = description;
-        this.time = time;
-        this.creation = creation;
+        this.endDate = endDate;
+        this.startDate = creation;
         this.user = user;
-        isClosed = creation >= time;
+        this.isClosed = false;
         this.subjectId = subjectId;
         this.isExternal = isExternal;
     }
@@ -71,12 +82,12 @@ public class Deadline {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String name) {
+        this.title = name;
     }
 
     public String getDescription() {
@@ -87,20 +98,20 @@ public class Deadline {
         this.description = description;
     }
 
-    public Long getTime() {
-        return time;
+    public Long getEndDate() {
+        return endDate;
     }
 
-    public void setTime(Long time) {
-        this.time = time;
+    public void setEndDate(Long time) {
+        this.endDate = time;
     }
 
-    public Long getCreation() {
-        return creation;
+    public Long getStartDate() {
+        return startDate;
     }
 
-    public void setCreation(Long creation) {
-        this.creation = creation;
+    public void setStartDate(Long creation) {
+        this.startDate = creation;
     }
 
 
@@ -121,19 +132,36 @@ public class Deadline {
         this.subjectId = subjectId;
     }
 
-    public Boolean getClosed() {
+    public Boolean getIsClosed() {
         return isClosed;
     }
+
+    public void setIsClosed(Boolean closed) {
+        isClosed = closed;
+    }
+
+    public Boolean getIsExternal() {
+        return isExternal;
+    }
+
+    public void setIsExternal(Boolean external) {
+        isExternal = external;
+    }
+
 
     public void setClosed(Boolean closed) {
         isClosed = closed;
     }
 
-    public Boolean getExternal() {
-        return isExternal;
-    }
-
     public void setExternal(Boolean external) {
         isExternal = external;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
 }

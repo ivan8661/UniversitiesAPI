@@ -1,4 +1,4 @@
-package com.scheduleapigateway.apigateway.Services.Adapters;
+package com.scheduleapigateway.apigateway.Services;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
@@ -14,24 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-
 @ControllerAdvice
 @RestController
 public class UniversityAdapter {
 
-
-
-    public AppUser auth() {
-
-        return null;
-    }
-
     @Qualifier("eurekaClient")
     @Autowired
     private EurekaClient eurekaClient;
-
-    private InstanceInfo universityInstance;
-
 
     public ScheduleUser getScheduleUser(String id, String moduleName) throws UserException {
         ResponseEntity<String> scheduleUser = new RestTemplate().exchange(getUniversityInstance(moduleName).getHomePageUrl() + "/scheduleUsers/" + id, HttpMethod.GET, HttpEntity.EMPTY, String.class);
@@ -42,27 +31,10 @@ public class UniversityAdapter {
             throw new UserException(404, "404", "user not found!", " ");
         }
     }
-
-
-
-
-
-
-
-
-
-
     public InstanceInfo getUniversityInstance(String moduleName) {
-            universityInstance = eurekaClient.
-                    getApplication("spring-cloud-eureka-" + moduleName)
-                    .getInstances()
-                    .get(0);
-        return universityInstance;
+        return eurekaClient.
+                getApplication(moduleName)
+                .getInstances()
+                .get(0);
     }
-
-
-
-
-
-
 }

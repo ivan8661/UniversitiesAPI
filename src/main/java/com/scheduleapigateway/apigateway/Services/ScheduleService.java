@@ -32,7 +32,7 @@ public class ScheduleService {
 
         ResponseEntity<LinkedList<Lesson>> lessons =  new RestTemplate().exchange(
                 application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId,
-                HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<LinkedList<Lesson>>() {});
+                HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
 
         if(lessons.getStatusCode().is2xxSuccessful()){
             return lessons.getBody();

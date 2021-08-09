@@ -26,7 +26,6 @@ public class SessionService {
     public SessionService() {
     }
 
-
     /**
      * @param userId
      * @param platform ios/browser/android and etc.

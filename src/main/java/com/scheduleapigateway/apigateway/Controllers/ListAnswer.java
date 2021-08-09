@@ -8,13 +8,16 @@ public class ListAnswer<T> {
 
 
     @JsonProperty("totalCount")
-    private int totalCount;
+    private long totalCount;
     @JsonProperty("items")
     private List<T> listAnswer;
 
+    public ListAnswer(List<T> listAnswer){
+        this.listAnswer = listAnswer;
+    }
 
-    public ListAnswer(List<T> listAnswer) {
-        this.totalCount = listAnswer.size();
+    public ListAnswer(List<T> listAnswer, long totalCount) {
+        this.totalCount = totalCount;
         this.listAnswer = listAnswer;
     }
 
@@ -22,11 +25,11 @@ public class ListAnswer<T> {
     }
 
 
-    public int getTotalCount() {
+    public long getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(int totalCount) {
+    public void setTotalCount(long totalCount) {
         this.totalCount = totalCount;
     }
 

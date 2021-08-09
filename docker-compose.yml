@@ -1,31 +1,35 @@
 version: "3"
+
 services:
   core:
     image: core
     restart: on-failure
     environment:
+      - SPRING_APPLICATION_NAME=core
       - WAIT_HOSTS=mysql:3307
       - WAIT_HOSTS_TIMEOUT=500
       - WAIT_SLEEP_INTERVAL=30
       - WAIT_HOST_CONNECT_TIMEOUT=30
-    ports:
-      - "8080:8090"
     networks:
-      - user-mysql
+      - eureka_network
+      - core_network
     depends_on:
       - core_db
+    ports:
+      - "8080:8080"
 
   core_db:
+    container_name: core_db
     hostname: mysql
-    restart: always
+    restart: on-failure
     image: mysql:8
     networks:
-      - user-mysql
-    ports:
-      - "3307:3306"
+      - core_network
     environment:
       - MYSQL_ROOT_PASSWORD=aw4cha3vaith
-      - MYSQL_DATABASE=schedapp
 
 networks:
-  user-mysql:
+  core_network:
+  eureka_network:
+    name: eureka_network
+    external: true

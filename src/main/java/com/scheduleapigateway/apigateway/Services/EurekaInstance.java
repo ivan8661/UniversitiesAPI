@@ -10,17 +10,24 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class EurekaInstance {
 
-    @Qualifier("eurekaClient")
+    private final EurekaClient eurekaClient;
+
     @Autowired
-    private EurekaClient eurekaClient;
+    public EurekaInstance(@Qualifier("eurekaClient") EurekaClient eurekaClient) {
+        this.eurekaClient = eurekaClient;
+    }
 
 
     public Application getApplication(String universityId) throws UserException {
 
+        if(eurekaClient == null) {
+            throw new UserException(404, "NOT_FOUND", "DISCOVERY_SERVICE_NOT_FOUND", " ");
+        }
         List<Application> applicationList = eurekaClient.getApplications().getRegisteredApplications();
         applicationList.removeIf(x -> !x.getInstances().get(0).getAppName().contains(universityId));
 
@@ -32,6 +39,9 @@ public class EurekaInstance {
     }
 
     public List<Application> getApplications() throws UserException {
+        if(eurekaClient == null) {
+            throw new UserException(404, "NOT_FOUND", "DISCOVERY_SERVICE_NOT_FOUND", " ");
+        }
 
         List<Application> applicationList = eurekaClient.getApplications().getRegisteredApplications();
         applicationList.removeIf(x -> x.getInstances().get(0).getAppName().contains("CORE"));

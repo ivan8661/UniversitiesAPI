@@ -1,4 +1,3 @@
-
 properties([disableConcurrentBuilds()])
 
 pipeline {
@@ -19,9 +18,7 @@ pipeline {
             stage('Build') { 
                         steps {
                                     withMaven {
-                                        bat 'mvn -v'
-                                        bat 'mvn dependency:tree'
-                                        bat 'mvn clean verify'
+                                        bat 'mvn install'
                                     }
                               }
             }
