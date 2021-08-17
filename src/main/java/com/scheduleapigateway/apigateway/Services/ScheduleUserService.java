@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedList;
@@ -41,53 +42,45 @@ public class ScheduleUserService {
      */
     public ScheduleUser getScheduleUser(String universityId, String scheduleUserId) throws UserException {
 
-        System.out.println("сначала:" + universityId);
-
         Application application = eurekaInstance.getApplication(universityId);
 
-        System.out.println("смотри:" + application.getName());
-        ResponseEntity<String> entity = new RestTemplate().exchange(
-                application.getInstances().get(0).getHomePageUrl() + "scheduleUsers" + "/" + scheduleUserId,
-                HttpMethod.GET, HttpEntity.EMPTY, String.class);
+        ResponseEntity<String> entity;
+        try {
+            entity = new RestTemplate().exchange(
+                    application.getInstances().get(0).getHomePageUrl() + "scheduleUsers" + "/" + scheduleUserId,
+                    HttpMethod.GET, HttpEntity.EMPTY, String.class);
+        } catch (RestClientException e) {
+            throw new UserException(404, "not_found", "Service " + application.getName() + " Error", " ");
+
+        }
 
         University university = universityService.getUniversity(universityId);
 
-        if(entity.getStatusCode().is2xxSuccessful()) {
-            JSONObject scheduleUserJson = new JSONObject(entity.getBody());
-            return new ScheduleUser(scheduleUserJson.optString("id"), scheduleUserJson.optString("name"), university);
-        } else {
-            throw new UserException(entity.getStatusCodeValue(),
-                    entity.getStatusCodeValue() + " ", "Service" + application.getName() + " Error", " ");
-        }
+        JSONObject scheduleUserJson = new JSONObject(entity.getBody());
+        return new ScheduleUser(scheduleUserJson.optString("id"), scheduleUserJson.optString("name"), university);
     }
 
     public List<ScheduleUser> getScheduleUsers(String universityId, String params, String scheduleType) throws UserException {
-
-
-        System.out.println(params);
-
         Application application = eurekaInstance.getApplication(universityId);
-
-        ResponseEntity<String> entity = new RestTemplate().exchange(
-                application.getInstances().get(0).getHomePageUrl() + scheduleType + "?" + params,
-                HttpMethod.GET, HttpEntity.EMPTY, String.class);
+        ResponseEntity<String> entity;
+        try {
+            entity = new RestTemplate().exchange(
+                    application.getInstances().get(0).getHomePageUrl() + scheduleType + "?" + params,
+                    HttpMethod.GET, HttpEntity.EMPTY, String.class);
+        } catch (RestClientException e) {
+            throw new UserException(404, "not_found", "Service " + application.getName() + " Error", " ");
+        }
 
         LinkedList<ScheduleUser> scheduleUsers = new LinkedList<>();
 
-        if(entity.getStatusCode().is2xxSuccessful()){
-            JSONArray scheduleUserArray = new JSONArray(entity.getBody());
+        JSONArray scheduleUserArray = new JSONArray(entity.getBody());
 
-            University university = universityService.getUniversity(universityId);
+        University university = universityService.getUniversity(universityId);
 
-            for(int i = 0; i < scheduleUserArray.length(); ++i) {
-                JSONObject professor = scheduleUserArray.getJSONObject(i);
-                scheduleUsers.add(new ScheduleUser(professor.optString("_id"), professor.optString("name"),
-                        university));
-            }
-
-        } else {
-            throw new UserException(entity.getStatusCodeValue(),
-                    entity.getStatusCodeValue() + " ", "Service" + application.getName() + " Error", " ");
+        for(int i = 0; i < scheduleUserArray.length(); ++i) {
+            JSONObject professor = scheduleUserArray.getJSONObject(i);
+            scheduleUsers.add(new ScheduleUser(professor.optString("_id"), professor.optString("name"),
+                    university));
         }
         return scheduleUsers;
     }

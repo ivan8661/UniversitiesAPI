@@ -15,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedList;
@@ -30,49 +31,44 @@ public class ScheduleService {
 
         Application application = eurekaInstance.getApplication(universityId);
 
-        ResponseEntity<LinkedList<Lesson>> lessons =  new RestTemplate().exchange(
-                application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId,
-                HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
-
-        if(lessons.getStatusCode().is2xxSuccessful()){
-            return lessons.getBody();
-        } else {
-            throw new UserException(lessons.getStatusCodeValue(),
-                    lessons.getStatusCodeValue() + " ", "Service" + application.getName() + " Error", " ");
+        ResponseEntity<LinkedList<Lesson>> lessons;
+        try {
+            lessons = new RestTemplate().exchange(
+                    application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId,
+                    HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
         }
+
+        return lessons.getBody();
     }
 
     public Lesson getLesson(String universityId, String lessonId) throws UserException {
-
         Application application = eurekaInstance.getApplication(universityId);
-
-        ResponseEntity<Lesson> lesson = new RestTemplate().exchange(
-                application.getInstances().get(0).getHomePageUrl() + "lessons/" + lessonId,
-                HttpMethod.GET, HttpEntity.EMPTY, Lesson.class
-        );
-
-        if(lesson.getStatusCode().is2xxSuccessful()) {
-            return lesson.getBody();
-        } else {
-            throw new UserException(lesson.getStatusCodeValue(),
-                    lesson.getStatusCodeValue() + " ", "Service" + application.getName() + " Error", " ");
+        ResponseEntity<Lesson> lesson;
+        try {
+            lesson = new RestTemplate().exchange(
+                    application.getInstances().get(0).getHomePageUrl() + "lessons/" + lessonId,
+                    HttpMethod.GET, HttpEntity.EMPTY, Lesson.class
+            );
+        } catch (RestClientException e) {
+            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
         }
+        return lesson.getBody();
     }
 
     public Subject getSubject(String universityId, String subjectId) throws UserException {
-
         Application application = eurekaInstance.getApplication(universityId);
-
-        ResponseEntity<Subject> subject = new RestTemplate().exchange(
-                application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
-                HttpMethod.GET, HttpEntity.EMPTY, Subject.class
-        );
-
-        if(subject.getStatusCode().is2xxSuccessful()) {
-            return subject.getBody();
-        } else {
-            throw new UserException(subject.getStatusCodeValue(),
-                    subject.getStatusCodeValue() + " ", "Service" + application.getName() + " Error", " ");
+        ResponseEntity<Subject> subject;
+        try {
+            subject = new RestTemplate().exchange(
+                    application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
+                    HttpMethod.GET, HttpEntity.EMPTY, Subject.class
+            );
+        } catch (RestClientException e) {
+            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
         }
+
+        return subject.getBody();
     }
 }

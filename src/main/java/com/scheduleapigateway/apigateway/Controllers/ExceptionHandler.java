@@ -29,13 +29,13 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(UserException.class)
     protected ResponseEntity<ErrorResult> handleUserException(UserException us) {
-        String code = us.getCode();
+        int code = us.getId();
         return switch (code) {
-            case "400" -> new ResponseEntity<>(new ErrorResult(us.getId(), code, us.getMessage(), us.getData()), HttpStatus.BAD_REQUEST);
-            case "403" -> new ResponseEntity<>(new ErrorResult(us.getId(), code, us.getMessage(), us.getData()), HttpStatus.FORBIDDEN);
-            case "404" -> new ResponseEntity<>(new ErrorResult(us.getId(), code, us.getMessage(), us.getData()), HttpStatus.NOT_FOUND);
-            case "406" -> new ResponseEntity<>(new ErrorResult(us.getId(), code, us.getMessage(), us.getData()), HttpStatus.NOT_ACCEPTABLE);
-            default -> new ResponseEntity<>(new ErrorResult(us.getId(), code, us.getMessage(), us.getData()), HttpStatus.INTERNAL_SERVER_ERROR);
+            case 400 -> new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.BAD_REQUEST);
+            case 403 -> new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.FORBIDDEN);
+            case 404 -> new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.NOT_FOUND);
+            case 406 -> new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.NOT_ACCEPTABLE);
+            default -> new ResponseEntity<>(new ErrorResult(us.getId(), us.getCode(), us.getMessage(), us.getData()), HttpStatus.INTERNAL_SERVER_ERROR);
         };
     }
 
@@ -46,7 +46,7 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(ServerErrorException.class)
     protected ResponseEntity<ErrorResult> handleInternalErrorException(ServerErrorException exception) {
-        return new ResponseEntity<>(new ErrorResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "500", "INTERNAL_SERVER_ERROR", Arrays.toString(exception.getStackTrace())), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ErrorResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "internal_server_error", "INTERNAL_SERVER_ERROR", Arrays.toString(exception.getStackTrace())), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NoSuchFieldException.class)
@@ -61,7 +61,7 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResult> handleOtherException(Exception ex) {
-        return new ResponseEntity<>(new ErrorResult(500, "INTERNAL_SERVER_ERROR", ex.getMessage(), Arrays.toString(ex.getStackTrace())), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ErrorResult(500, "internal_server_error", ex.getMessage(), Arrays.toString(ex.getStackTrace())), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
