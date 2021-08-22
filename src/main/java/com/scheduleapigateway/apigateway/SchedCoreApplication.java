@@ -14,6 +14,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +35,7 @@ public class SchedCoreApplication {
         }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         SpringApplication.run(SchedCoreApplication.class, args);
     }
 

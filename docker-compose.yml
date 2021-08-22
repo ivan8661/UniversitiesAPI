@@ -12,24 +12,14 @@ services:
       - WAIT_HOST_CONNECT_TIMEOUT=30
     networks:
       - eureka_network
-      - core_network
-    depends_on:
-      - core_db
+      - common_network
     ports:
       - "8080:8080"
 
-  core_db:
-    container_name: core_db
-    hostname: mysql
-    restart: on-failure
-    image: mysql:8
-    networks:
-      - core_network
-    environment:
-      - MYSQL_ROOT_PASSWORD=aw4cha3vaith
-
 networks:
-  core_network:
+  common_network:
+    name: common_network
+    external: true
   eureka_network:
     name: eureka_network
     external: true

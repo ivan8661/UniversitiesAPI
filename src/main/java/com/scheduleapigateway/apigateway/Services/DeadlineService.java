@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import reactor.util.annotation.NonNull;
 
@@ -44,14 +45,14 @@ public class DeadlineService {
     @SessionRequired
     public Deadline getDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
-        deadline.setSubject(getSubjectFromService(sessionId, deadline.getSubjectId()));
+        deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadline.getSubjectId()));
         return deadline;
     }
 
     @SessionRequired
     public Deadline deleteDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
-        deadline.setSubject(getSubjectFromService(sessionId, deadlineId));
+        deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadlineId));
         deadlineRepository.delete(deadline);
         return deadline;
     }
@@ -75,7 +76,7 @@ public class DeadlineService {
 
         QueryParametersBuilder<Deadline> qpBuilder = new QueryParametersBuilder<>(params, Deadline.class);
         List<Deadline> deadlines = deadlineRepository.findAll(qpBuilder.getSpecification(userFilter), qpBuilder.getPage()).getContent();
-        getSubjectListFromService(sessionId, deadlines);
+        getSubjectListFromService(deadlines);
         return deadlines;
     }
 
@@ -116,8 +117,11 @@ public class DeadlineService {
                                         {
                                             String subjectId = jsonDeadline.optString("subjectId", null);
                                             if(subjectId != null) {
-                                                deadline.setSubject(getSubjectFromService(sessionId, subjectId));
+                                                deadline.setSubject(getSubjectFromService(userSessionRepository.findUserSessionById(sessionId).getUser().getUniversityId(), subjectId));
                                                 deadline.setSubjectId(subjectId);
+                                                AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
+                                                if(appUser.getUniversityId()!=null)
+                                                 deadline.setUniversityId(appUser.getUniversityId());
                                             } else {
                                                 deadline.setSubjectId(null);
                                             }
@@ -128,42 +132,71 @@ public class DeadlineService {
         return deadline;
     }
 
-    private Subject getSubjectFromService(String sessionId, String subjectId) throws UserException {
-        String universityId = userSessionRepository.findUserSessionById(sessionId).getUser().getUniversityId();
+
+    private Subject getSubjectFromService(String universityId, String subjectId) throws UserException {
         if(universityId == null || subjectId == null){
             return null;
         }
-        System.out.println("вот ваш сабджект:" + subjectId);
-        Application application = eurekaInstance.getApplication(universityId);
-        ResponseEntity<Subject> subjectResponseEntity =  new RestTemplate().exchange(
-                application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
-                HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
+
+        Application application;
+        try {
+            application = eurekaInstance.getApplication(universityId);
+        } catch (UserException e) {
+            return null;
+        }
+
+        ResponseEntity<Subject> subjectResponseEntity;
+        try {
+            subjectResponseEntity = new RestTemplate().exchange(
+                    application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
+                    HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
+        } catch (RestClientException e) {
+            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
+        }
         return subjectResponseEntity.getBody();
     }
 
-    private List<Deadline> getSubjectListFromService(String sessionId, List<Deadline> deadlines) throws UserException {
-        Set<String> subjectsId = new HashSet<>();
-        String universityId = userSessionRepository.findUserSessionById(sessionId).getUser().getUniversityId();
-        if(universityId == null){
-            return null;
-        }
+    private List<Deadline> getSubjectListFromService(List<Deadline> deadlines) throws UserException {
+        Map<String, String> subjectsId = new HashMap<>();
+        Set<String> universities = new HashSet<>();
+
+
         for(Deadline deadline : deadlines) {
-            if(deadline.getSubjectId()!=null) {
-                subjectsId.add(deadline.getSubjectId());
+            if(deadline.getSubjectId()!=null && deadline.getUniversityId()!=null) {
+                subjectsId.put(deadline.getUniversityId(), deadline.getSubjectId());
+                universities.add(deadline.getUniversityId());
             }
         }
 
-        HttpEntity httpEntity = new HttpEntity(subjectsId, new HttpHeaders());
-        Application application = eurekaInstance.getApplication(universityId);
-        ResponseEntity<List<Subject>> subjectResponseEntity =  new RestTemplate().exchange(
-                application.getInstances().get(0).getHomePageUrl() + "subjects",
-                HttpMethod.POST, httpEntity, new ParameterizedTypeReference<>() {});
+        for(String university : universities){
+            System.out.println("вот вуз id: " + university);
+            Set<String> tmpSet = new HashSet<>();
+            Application application = eurekaInstance.getApplication(university);
+            for(Map.Entry<String, String> entry : subjectsId.entrySet()){
+                if(entry.getKey().equals(university)){
+                    tmpSet.add(entry.getValue());
+                }
+            }
 
-        List<Subject> subjects = subjectResponseEntity.getBody();
-        for(Subject subject : subjects){
-            for(Deadline deadline : deadlines){
-                if(deadline.getSubjectId() != null && subject.getId().equals(deadline.getSubjectId())){
-                    deadline.setSubject(subject);
+            HttpEntity httpEntity = new HttpEntity(tmpSet, new HttpHeaders());
+
+            ResponseEntity<List<Subject>> subjectResponseEntity;
+            try {
+                subjectResponseEntity = new RestTemplate().exchange(
+                        application.getInstances().get(0).getHomePageUrl() + "subjects",
+                        HttpMethod.POST, httpEntity, new ParameterizedTypeReference<>() {});
+            } catch (RestClientException e) {
+                throw new UserException(404, "not_found", "subject not found", " ");
+            }
+
+            List<Subject> subjects = subjectResponseEntity.getBody();
+
+            if(subjects!=null)
+            for(Subject subject : subjects){
+                for(Deadline deadline : deadlines){
+                    if(deadline.getSubjectId() != null && subject.getId().equals(deadline.getSubjectId())){
+                        deadline.setSubject(subject);
+                    }
                 }
             }
         }
@@ -173,7 +206,7 @@ public class DeadlineService {
     private Deadline checkForExist(String deadlineId) throws UserException {
         Optional<Deadline> optionalDeadline = deadlineRepository.findById(deadlineId);
         if(optionalDeadline.isEmpty()){
-            throw new UserException(404, "NOT_FOUND", "deadline doesn't exist!", " ");
+            throw new UserException(404, "not_found", "deadline doesn't exist!", " ");
         } else {
             return optionalDeadline.get();
         }

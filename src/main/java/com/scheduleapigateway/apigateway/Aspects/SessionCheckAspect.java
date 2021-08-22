@@ -19,10 +19,13 @@ public class SessionCheckAspect {
 
     @Around("@annotation(SessionRequired)")
     public Object checkSessionId(ProceedingJoinPoint joinPoint) throws Throwable {
+        if(joinPoint.getArgs()[0] == null){
+            throw new UserException(403, "forbidden", "User doesn't exist!", " ");
+        }
         String sessionId = joinPoint.getArgs()[0].toString();
             UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
             if (userSession == null) {
-                throw new UserException(403, "FORBIDDEN", "User doesn't exist!", " ");
+                throw new UserException(403, "forbidden", "User doesn't exist!", " ");
             }
         return joinPoint.proceed();
     }

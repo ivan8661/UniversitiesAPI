@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.util.Set;

@@ -2,6 +2,7 @@ package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 
 import GetGraphQL.SearchableField;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 
@@ -45,6 +46,10 @@ public class Deadline {
     @JsonProperty("isExternal")
     private Boolean isExternal;
 
+    @Column(name="university_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String universityId;
+
     @Column(name = "subject_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String subjectId;
@@ -54,6 +59,8 @@ public class Deadline {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private AppUser user;
 
+
+
     @Transient
     private Subject subject;
 
@@ -62,7 +69,7 @@ public class Deadline {
         this.isClosed=false;
     }
 
-    public Deadline(String id, String title, String description, Long endDate, Long creation, AppUser user, String subjectId, boolean isExternal) {
+    public Deadline(String id, String title, String description, Long endDate, Long creation, AppUser user, String subjectId, boolean isExternal, String universityId) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -72,6 +79,7 @@ public class Deadline {
         this.isClosed = false;
         this.subjectId = subjectId;
         this.isExternal = isExternal;
+        this.universityId = universityId;
     }
 
     public String getId() {
@@ -159,6 +167,22 @@ public class Deadline {
 
     public Subject getSubject() {
         return subject;
+    }
+
+    public Boolean getClosed() {
+        return isClosed;
+    }
+
+    public Boolean getExternal() {
+        return isExternal;
+    }
+
+    public String getUniversityId() {
+        return universityId;
+    }
+
+    public void setUniversityId(String universityId) {
+        this.universityId = universityId;
     }
 
     public void setSubject(Subject subject) {
