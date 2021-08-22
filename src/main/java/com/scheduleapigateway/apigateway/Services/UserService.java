@@ -24,7 +24,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
-import java.util.HashSet;
 
 @Service
 public class UserService {
@@ -144,10 +143,9 @@ public class UserService {
      * @throws UserException exception if user is missed
      */
     @SessionRequired
-    public AppUser removeUser(String sessionId) {
+    public void removeUser(String sessionId) {
             AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
             userRepository.delete(user);
-            return user;
     }
 
     @SessionRequired
@@ -197,12 +195,19 @@ public class UserService {
 
         JSONObject user = new JSONObject(userInfo.getBody());
         String id = user.optString("_id");
-        String fistName = user.optString("firstname");
+        String firstName = user.optString("firstname");
         String secondName = user.optString("lastname");
         String groupId = user.optString("groupId");
         String groupName = user.optString("groupName");
         University university = universityService.getUniversity(universityId);
-        return new AppUser(id, login, password, fistName, secondName, universityId, groupId, new ScheduleUser(groupId, groupName, university), university);
+
+        ScheduleUser scheduleUser;
+        if(id!=null && groupName != null && !id.equals("") && !groupName.equals("")) {
+            scheduleUser = new ScheduleUser(id, groupName, university);
+        } else {
+            scheduleUser = null;
+        }
+        return new AppUser(id, login, password, firstName, secondName, universityId, groupId, scheduleUser, university);
 
     }
 
@@ -213,8 +218,8 @@ public class UserService {
         AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
         String login = null;
         String password = null;
-        String universityId = user.getUniversityId();
-        String scheduleUserId = user.getScheduleUserId();
+        String universityId = null;
+        String scheduleUserId = null;
 
         for(String key : paramsJson.keySet()){
             switch (key) {
@@ -243,8 +248,7 @@ public class UserService {
             user.setPassword(null);
         }
 
-        if(scheduleUserId != null && universityId != null) {
-            user.setUniversityId(universityId);
+        if(scheduleUserId != null && user.getUniversityId() != null) {
             user.setScheduleUserId(scheduleUserId);
         }
 
@@ -253,7 +257,6 @@ public class UserService {
             if(userRepository.findByLogin(login)!=null){
                 contributor = userRepository.findByLogin(login);
                 if(contributor.getPassword().equals(password) && contributor.getVkId()==null) {
-                    SchedCoreApplication.getLogger().info("дошел ежжи");
                     mergeUserToUser(user, userRepository.findByLogin(login));
                 } else {
                     throw new UserException(500, "validation_error", "password is incorrect", " ");

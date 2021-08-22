@@ -47,7 +47,7 @@ public class Deadline {
     private Boolean isExternal;
 
     @Column(name="university_id")
-    @JsonIgnoreProperties
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String universityId;
 
     @Column(name = "subject_id")

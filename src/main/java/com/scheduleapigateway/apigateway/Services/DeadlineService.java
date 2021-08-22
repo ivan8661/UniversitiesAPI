@@ -45,14 +45,14 @@ public class DeadlineService {
     @SessionRequired
     public Deadline getDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
-        deadline.setSubject(getSubjectFromService(sessionId, deadline.getSubjectId()));
+        deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadline.getSubjectId()));
         return deadline;
     }
 
     @SessionRequired
     public Deadline deleteDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
-        deadline.setSubject(getSubjectFromService(sessionId, deadlineId));
+        deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadlineId));
         deadlineRepository.delete(deadline);
         return deadline;
     }
@@ -117,7 +117,7 @@ public class DeadlineService {
                                         {
                                             String subjectId = jsonDeadline.optString("subjectId", null);
                                             if(subjectId != null) {
-                                                deadline.setSubject(getSubjectFromService(sessionId, subjectId));
+                                                deadline.setSubject(getSubjectFromService(userSessionRepository.findUserSessionById(sessionId).getUser().getUniversityId(), subjectId));
                                                 deadline.setSubjectId(subjectId);
                                                 AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
                                                 if(appUser.getUniversityId()!=null)
@@ -132,8 +132,8 @@ public class DeadlineService {
         return deadline;
     }
 
-    private Subject getSubjectFromService(String sessionId, String subjectId) throws UserException {
-        String universityId = userSessionRepository.findUserSessionById(sessionId).getUser().getUniversityId();
+
+    private Subject getSubjectFromService(String universityId, String subjectId) throws UserException {
         if(universityId == null || subjectId == null){
             return null;
         }
