@@ -17,31 +17,18 @@ public class AnswerTemplate<T>{
 
     private T result;
 
-    private T error;
+    private UserException error;
 
-    public AnswerTemplate(T result, T error) {
+    public AnswerTemplate(T result, UserException error) {
         this.result = result;
         this.error = error;
-    }
-
-
-    public AnswerTemplate() {
-
     }
 
     public T getResult() {
         return result;
     }
 
-    public void setResult(T result) {
-        this.result = result;
-    }
-
-    public T getError() {
+    public UserException getError() {
         return error;
-    }
-
-    public void setError(T error) {
-        this.error = error;
     }
 }

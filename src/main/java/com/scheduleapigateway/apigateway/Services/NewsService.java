@@ -11,6 +11,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Entities.VK.*;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
@@ -181,7 +182,7 @@ public class NewsService {
                     application.getInstances().get(0).getHomePageUrl() + "newsSources/",
                     HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", " ");
         }
         return newsSources.getBody();
     }

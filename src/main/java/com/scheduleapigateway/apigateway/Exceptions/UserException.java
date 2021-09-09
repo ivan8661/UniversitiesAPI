@@ -1,33 +1,44 @@
 package com.scheduleapigateway.apigateway.Exceptions;
 
+import org.springframework.http.HttpStatus;
 
 public class UserException extends Exception {
-    private int id;
-    private String code;
+    private UserExceptionType type;
     private String message;
-    private String data;
+    private Object data;
 
-    public UserException(int id, String code, String message, String data) {
-        this.id = id;
-        this.code = code;
-        this.message = message;
+    public UserException(UserExceptionType type, String message, Object data) {
+        this.type = type;
+        if ( message != null ) {
+            this.message = message;
+        } else {
+            this.message = type.getDefaultMessage();
+        }
         this.data = data;
     }
 
-    public int getId() {
-        return id;
+    public UserException(UserExceptionType type, Object data) {
+        this.type = type;
+        this.message = type.getDefaultMessage();
+        this.data = data;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public UserException(UserExceptionType type) {
+        this.type = type;
+        this.message = type.getDefaultMessage();
+        this.data = null;
+    }
+
+    public int getId() {
+        return type.getHTTPCode();
     }
 
     public String getCode() {
-        return code;
+        return type.getCode();
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public Object getData() {
+        return data;
     }
 
     @Override
@@ -35,16 +46,8 @@ public class UserException extends Exception {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public HttpStatus getHttpStatus() {
+        return type.getHttpStatus();
     }
 }
 

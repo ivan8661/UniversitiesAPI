@@ -4,6 +4,7 @@ import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class ScheduleUserService {
                     application.getInstances().get(0).getHomePageUrl() + "scheduleUsers" + "/" + scheduleUserId,
                     HttpMethod.GET, HttpEntity.EMPTY, String.class);
         } catch (RestClientException e) {
-            throw new UserException(404, "not_found", "Service " + application.getName() + " Error", e.getCause() + " " + e.getMessage());
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getCause() + " " + e.getMessage());
         }
 
         University university = universityService.getUniversity(universityId);
@@ -67,7 +68,7 @@ public class ScheduleUserService {
                     application.getInstances().get(0).getHomePageUrl() + scheduleType + "?" + params,
                     HttpMethod.GET, HttpEntity.EMPTY, String.class);
         } catch (RestClientException e) {
-            throw new UserException(404, "not_found", "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", " ");
         }
 
         LinkedList<ScheduleUser> scheduleUsers = new LinkedList<>();
