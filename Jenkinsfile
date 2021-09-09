@@ -2,34 +2,30 @@ properties([disableConcurrentBuilds()])
 
 pipeline {
 
-            agent {
-                label 'master'
-            }
+agent {
+    label 'master'
+}
 
-            options {
-                buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
-                timestamps()
-            }
-           
-            stages {
-                        
-                        
+options {
+    buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+    timestamps()
+}
 
-            stage('Build') { 
-                        steps {
-                                    withMaven {
-                                        bat 'mvn install'
-                                    }
-                              }
+stages {
+    stage('Build') {
+        steps {
+            withMaven {
+                bat 'mvn install'
             }
-                stage('create docker image') {
-                    steps {
-                        echo " ========= start building image ========"
-                        bat 'docker build --tag core . '
-                        bat 'docker-compose.yml up'
-                           }
-                }
-                
-                
-            }
+        }
     }
+
+    stage('create docker image') {
+        steps {
+            echo " ========= start building image ========"
+            bat 'docker build --tag core . '
+            bat 'docker-compose.yml up'
+            }
+        }
+    }
+}
