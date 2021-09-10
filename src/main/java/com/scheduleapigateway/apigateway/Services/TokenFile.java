@@ -62,12 +62,14 @@ public class TokenFile {
 
     public static String getRandomTokenFromSet(HashMap<Integer, String> tokens) {
         int sizeTokens = 0;
-        if(tokens.size() > 1)
+        if (tokens.size() > 2)
             sizeTokens = tokens.size() - 1;
+        sizeTokens = Integer.max(sizeTokens, 1);
+
         int tokenKey = new Random().nextInt(sizeTokens);
         String token = tokens.get(tokenKey);
-        if(!checkActualToken(token)){
-            SchedCoreApplication.getLogger().info("токен: " + tokens.get(tokenKey) +" удален в связи с тем, что он протух,петух!");
+        if (!checkActualToken(token)) {
+            SchedCoreApplication.getLogger().info("токен: " + tokens.get(tokenKey) + " удален в связи с тем, что он протух,петух!");
             tokens.remove(tokenKey);
             reWriteTokenFile(tokens);
             return getRandomTokenFromSet(tokens);
