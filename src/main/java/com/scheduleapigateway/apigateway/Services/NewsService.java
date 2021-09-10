@@ -4,7 +4,6 @@ package com.scheduleapigateway.apigateway.Services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.shared.Application;
-import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Entities.NewsSource;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
@@ -12,7 +11,6 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionReposi
 import com.scheduleapigateway.apigateway.Entities.VK.*;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
-import com.scheduleapigateway.apigateway.SchedCoreApplication;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;

@@ -62,8 +62,8 @@ public class TokenFile {
 
     public static String getRandomTokenFromSet(HashMap<Integer, String> tokens) {
         int sizeTokens = 0;
-        if(tokens.size() > 0)
-            sizeTokens = tokens.size()-1;
+        if(tokens.size() > 1)
+            sizeTokens = tokens.size() - 1;
         int tokenKey = new Random().nextInt(sizeTokens);
         String token = tokens.get(tokenKey);
         if(!checkActualToken(token)){
