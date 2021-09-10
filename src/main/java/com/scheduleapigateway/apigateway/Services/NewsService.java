@@ -47,7 +47,6 @@ public class NewsService {
     private static final Pattern titlePattern = Pattern.compile("^(.*?)(\\.|(?=\\n))");
 
 
-    @SessionRequired
     public NewsSource changeEnabledFeedSource(String sessionId, String newsSourceId, String data) throws JsonProcessingException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         NewsSource[] feedSourceFromUser = new ObjectMapper().readValue(appUser.getNews(), NewsSource[].class);
@@ -65,7 +64,6 @@ public class NewsService {
     }
 
 
-    @SessionRequired
     public List<VKNews> getFeedBySource(String sessionId, String sourceId, String limit, String offset) throws JsonProcessingException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         List<VKNews> news = new ArrayList<>();
@@ -77,7 +75,7 @@ public class NewsService {
         }
         return news;
     }
-    @SessionRequired
+
     public List<VKNews> getFeed(String sessionId) throws JsonProcessingException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         ArrayList<VKNews> news = new ArrayList<>();
@@ -134,7 +132,6 @@ public class NewsService {
         return list;
     }
 
-    @SessionRequired
     public ArrayList<NewsSource> getNewsSources(String sessionId) throws UserException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         if(appUser.getUniversityId() == null || appUser.getNews() == null){
@@ -143,7 +140,6 @@ public class NewsService {
         return getFeedSourcesFromString(appUser.getNews());
     }
 
-    @SessionRequired
     public NewsSource getNewsSource(String sessionId, String sourceId) {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         if(appUser.getUniversityId() == null || appUser.getNews() == null){

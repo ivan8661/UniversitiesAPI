@@ -212,7 +212,6 @@ public class UserService {
 
     }
 
-    @SessionRequired
     public AppUser updateUser(String sessionId, String params) throws UserException {
         JSONObject paramsJson = new JSONObject(params);
 
