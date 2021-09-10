@@ -96,13 +96,7 @@ public class NewsService {
 
 
     public List<VKNews> getVKPostsFromSource(String sourceId, String offset, String limit) {
-        String token;
-        try {
-             token = TokenFile.getRandomTokenFromSet(TokenFile.getTokensFromFile());
-        } catch (Exception e) {
-            return  new ArrayList<>();
-        }
-
+        String token = TokenFile.getRandomTokenFromSet(TokenFile.getTokensFromFile());
         List<VKNews> list = new ArrayList<>();
 
         ResponseEntity<VKGroup> responseEntity = new RestTemplate().exchange("https://api.vk.com/method/wall.get?v=5.130&access_token="+
@@ -136,7 +130,7 @@ public class NewsService {
         return list;
     }
 
-    public ArrayList<NewsSource> getNewsSources(String sessionId) {
+    public ArrayList<NewsSource> getNewsSources(String sessionId) throws UserException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         if(appUser.getUniversityId() == null || appUser.getNews() == null){
             return null;
