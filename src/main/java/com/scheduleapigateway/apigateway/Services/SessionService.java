@@ -25,7 +25,7 @@ public class SessionService {
 
     public SessionService() {
     }
-
+//docker build -t schedapp/core:latest -t schedapp/core:
     /**
      * @param userId
      * @param platform ios/browser/android and etc.

@@ -7,6 +7,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class ScheduleService {
                     application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId,
                     HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
 
         return lessons.getBody();
@@ -52,7 +53,7 @@ public class ScheduleService {
                     HttpMethod.GET, HttpEntity.EMPTY, Lesson.class
             );
         } catch (RestClientException e) {
-            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
         return lesson.getBody();
     }
@@ -66,7 +67,7 @@ public class ScheduleService {
                     HttpMethod.GET, HttpEntity.EMPTY, Subject.class
             );
         } catch (RestClientException e) {
-            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
 
         return subject.getBody();

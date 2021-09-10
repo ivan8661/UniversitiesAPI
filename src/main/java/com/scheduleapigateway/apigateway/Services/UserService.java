@@ -12,6 +12,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
@@ -77,11 +78,11 @@ public class UserService {
         if(vkUserResponse.getBody() != null || !vkUserResponse.getBody().isEmpty())
             vkUser = new JSONObject(vkUserResponse.getBody());
         else
-            throw new UserException(503, "service unavaliable", "Сервер ВКонтакте не отвечает...", "");
+            throw new UserException(UserExceptionType.TIMEOUT, "Сервер ВКонтакте не отвечает...");
 
 
         if(vkUser.optJSONObject("error") != null || vkUser.optJSONObject("response") == null)
-            throw new UserException(500, "validation_error", "access token vk недействителен", "");
+            throw new UserException(UserExceptionType.VALIDATION_ERROR, "access token vk недействителен");
 
         int id = vkUser.optJSONObject("response").optInt("id");
         if(userRepository.existsByVkId(id)) {
@@ -162,7 +163,7 @@ public class UserService {
         String password = authJson.optString("servicePassword");
 
         if (login == null || password == null) {
-            throw new UserException(400, "bad_request", "incorrect input data", "");
+            throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect input data");
         }
         AppUser user = getUserFromService(universityId, login, password);
         newsService.setFeedSources(user, universityId);
@@ -190,7 +191,7 @@ public class UserService {
             userInfo = new RestTemplate().exchange(application.getInstances().get(0).getHomePageUrl() + "auth",
                     HttpMethod.POST, requestEntity, String.class);
         } catch (RestClientException e) {
-            throw new UserException(500, "validation_error", "incorrect login or password", "");
+            throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect login or password");
         }
 
         JSONObject user = new JSONObject(userInfo.getBody());
@@ -232,15 +233,15 @@ public class UserService {
 
         String finalUniversityId = universityId;
         if(universityId != null && eurekaInstance.getApplications().stream().noneMatch(x -> x.getName().equals(finalUniversityId))){
-            throw new UserException(404, "not_found", "UNIVERSITY_NOT_FOUND", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "UNIVERSITY_NOT_FOUND");
         }
 
-        if(universityId !=null && user.getUniversityId() == null){
+        if(universityId != null && user.getUniversityId() == null){
             user.setUniversityId(universityId);
             newsService.setFeedSources(user, universityId);
         }
 
-        if(universityId != null && user.getUniversityId()!=null && !user.getUniversityId().equals(universityId)){
+        if(universityId != null && user.getUniversityId() !=null && !user.getUniversityId().equals(universityId)){
             user.setUniversityId(universityId);
             newsService.setFeedSources(user, universityId);
             user.setScheduleUserId(null);
@@ -259,7 +260,7 @@ public class UserService {
                 if(contributor.getPassword().equals(password) && contributor.getVkId()==null) {
                     mergeUserToUser(user, userRepository.findByLogin(login));
                 } else {
-                    throw new UserException(500, "validation_error", "password is incorrect", " ");
+                    throw new UserException(UserExceptionType.VALIDATION_ERROR, "password is incorrect");
                 }
             } else {
                 contributor = getUserFromService(universityId, login, password);
@@ -272,11 +273,11 @@ public class UserService {
     }
 
     public void mergeUserToUser(AppUser recipient, AppUser contributor) throws UserException {
-        if(recipient.getUniversityId()==null)
+        if(recipient.getUniversityId() == null)
             recipient.setUniversityId(contributor.getUniversityId());
-        if(recipient.getScheduleUserId()==null)
+        if(recipient.getScheduleUserId() == null)
             recipient.setScheduleUserId(contributor.getScheduleUserId());
-        if(recipient.getNews()==null)
+        if(recipient.getNews() == null)
             newsService.setFeedSources(recipient, recipient.getUniversityId());
         recipient.setUniversityId(contributor.getUniversityId());
 
@@ -300,11 +301,11 @@ public class UserService {
 
     public void boundingServiceToUser(AppUser recipient, AppUser contributor) throws UserException {
 
-        if(recipient.getUniversityId()==null)
+        if(recipient.getUniversityId() == null)
             recipient.setUniversityId(contributor.getUniversityId());
-        if(recipient.getScheduleUserId()==null)
+        if(recipient.getScheduleUserId() == null)
             recipient.setScheduleUserId(contributor.getScheduleUserId());
-        if(recipient.getNews()==null)
+        if(recipient.getNews() == null)
             newsService.setFeedSources(recipient, recipient.getUniversityId());
 
         recipient.setLogin(contributor.getLogin());

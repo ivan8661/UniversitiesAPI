@@ -3,6 +3,7 @@ package com.scheduleapigateway.apigateway.Services;
 import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.Services.EurekaInstance;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class UniversityService {
         try {
             universityInfo = new RestTemplate().exchange(application.getInstances().get(0).getHomePageUrl() + "universityInfo", HttpMethod.GET, HttpEntity.EMPTY, String.class);
         } catch (RestClientException e) {
-            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
 
         JSONObject universityInfoJson = new JSONObject(universityInfo.getBody());
@@ -67,8 +68,8 @@ public class UniversityService {
                 ));
 
             } else {
-                throw new UserException(universityInfo.getStatusCodeValue(),
-                        universityInfo.getStatusCodeValue()+" ", "Service" + application.getName() + " Error", " ");
+
+                throw new UserException(UserExceptionType.SERVER_ERROR, "Service" + application.getName() + " Error");
             }
         }
         return universities;

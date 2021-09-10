@@ -14,6 +14,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,7 +152,7 @@ public class DeadlineService {
                     application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
                     HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            throw new UserException(404,"not_found", "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
         return subjectResponseEntity.getBody();
     }
@@ -186,7 +187,7 @@ public class DeadlineService {
                         application.getInstances().get(0).getHomePageUrl() + "subjects",
                         HttpMethod.POST, httpEntity, new ParameterizedTypeReference<>() {});
             } catch (RestClientException e) {
-                throw new UserException(404, "not_found", "subject not found", " ");
+                throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "subject not found");
             }
 
             List<Subject> subjects = subjectResponseEntity.getBody();
@@ -206,7 +207,7 @@ public class DeadlineService {
     private Deadline checkForExist(String deadlineId) throws UserException {
         Optional<Deadline> optionalDeadline = deadlineRepository.findById(deadlineId);
         if(optionalDeadline.isEmpty()){
-            throw new UserException(404, "not_found", "deadline doesn't exist!", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "deadline doesn't exist!");
         } else {
             return optionalDeadline.get();
         }
