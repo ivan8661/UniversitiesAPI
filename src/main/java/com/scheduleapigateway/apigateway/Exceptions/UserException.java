@@ -1,7 +1,9 @@
 package com.scheduleapigateway.apigateway.Exceptions;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.http.HttpStatus;
 
+@JsonIgnoreProperties({"httpStatus", "stackTrace"})
 public class UserException extends Exception {
     private UserExceptionType type;
     private String message;
@@ -9,12 +11,14 @@ public class UserException extends Exception {
 
     public UserException(UserExceptionType type, String message, Object data) {
         this.type = type;
-        if ( message != null ) {
-            this.message = message;
-        } else {
-            this.message = type.getDefaultMessage();
-        }
+        this.message = message;
         this.data = data;
+    }
+
+    public UserException(UserExceptionType type, String message) {
+        this.type = type;
+        this.message = message;
+        this.data = null;
     }
 
     public UserException(UserExceptionType type, Object data) {
@@ -38,6 +42,9 @@ public class UserException extends Exception {
     }
 
     public Object getData() {
+        if (data == null) {
+            return getStackTrace();
+        }
         return data;
     }
 
