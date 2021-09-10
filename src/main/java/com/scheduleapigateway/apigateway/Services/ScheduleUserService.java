@@ -68,7 +68,7 @@ public class ScheduleUserService {
                     application.getInstances().get(0).getHomePageUrl() + scheduleType + "?" + params,
                     HttpMethod.GET, HttpEntity.EMPTY, String.class);
         } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
 
         LinkedList<ScheduleUser> scheduleUsers = new LinkedList<>();

@@ -182,7 +182,7 @@ public class NewsService {
                     application.getInstances().get(0).getHomePageUrl() + "newsSources/",
                     HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
         return newsSources.getBody();
     }

@@ -38,7 +38,7 @@ public class ScheduleService {
                     application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId,
                     HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
 
         return lessons.getBody();
@@ -53,7 +53,7 @@ public class ScheduleService {
                     HttpMethod.GET, HttpEntity.EMPTY, Lesson.class
             );
         } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
         return lesson.getBody();
     }
@@ -67,7 +67,7 @@ public class ScheduleService {
                     HttpMethod.GET, HttpEntity.EMPTY, Subject.class
             );
         } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
 
         return subject.getBody();

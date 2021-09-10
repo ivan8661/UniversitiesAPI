@@ -187,7 +187,7 @@ public class DeadlineService {
                         application.getInstances().get(0).getHomePageUrl() + "subjects",
                         HttpMethod.POST, httpEntity, new ParameterizedTypeReference<>() {});
             } catch (RestClientException e) {
-                throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "subject not found", " ");
+                throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "subject not found");
             }
 
             List<Subject> subjects = subjectResponseEntity.getBody();
@@ -207,7 +207,7 @@ public class DeadlineService {
     private Deadline checkForExist(String deadlineId) throws UserException {
         Optional<Deadline> optionalDeadline = deadlineRepository.findById(deadlineId);
         if(optionalDeadline.isEmpty()){
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "deadline doesn't exist!", " ");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "deadline doesn't exist!");
         } else {
             return optionalDeadline.get();
         }
