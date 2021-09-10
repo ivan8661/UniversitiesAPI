@@ -29,15 +29,7 @@ public class ListAnswer<T> {
         return totalCount;
     }
 
-    public void setTotalCount(long totalCount) {
-        this.totalCount = totalCount;
-    }
-
     public List<T> getListAnswer() {
         return listAnswer;
-    }
-
-    public void setListAnswer(List<T> listAnswer) {
-        this.listAnswer = listAnswer;
     }
 }
