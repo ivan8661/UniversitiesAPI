@@ -1,6 +1,7 @@
 package com.scheduleapigateway.apigateway.Controllers.DataController;
 
 
+import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
@@ -43,10 +44,11 @@ public class DeadlineController {
      * @throws UserException custom exception for REST API
      * @see Deadline
      */
-        @PostMapping(path="/deadlines")
-        public ResponseEntity<AnswerTemplate<Deadline>> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody String deadlineRequest) throws UserException {
-            return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(deadlineService.createDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineRequest), null));
-        }
+    @SessionRequired
+    @PostMapping(path="/deadlines")
+    public ResponseEntity<AnswerTemplate<Deadline>> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody String deadlineRequest) throws UserException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(deadlineService.createDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineRequest), null));
+    }
 
     /**
      * endpoint for change state of the deadline from "open" to "close" or vice versa
@@ -56,52 +58,58 @@ public class DeadlineController {
      * @throws UserException custom Exception for REST API
      * @see Deadline
      */
-        @PostMapping(path="/deadlines/{deadlineId}/close")
-        public ResponseEntity<AnswerTemplate<Deadline>> closeDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
-            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, true), null));
-        }
+    @SessionRequired
+    @PostMapping(path="/deadlines/{deadlineId}/close")
+    public ResponseEntity<AnswerTemplate<Deadline>> closeDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
+        return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, true), null));
+    }
 
-        @DeleteMapping(path="/deadlines/{deadlineId}/close")
-        public ResponseEntity<AnswerTemplate<Deadline>> restartDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
-            return ResponseEntity.status(202).body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, false), null));
-        }
+    @SessionRequired
+    @DeleteMapping(path="/deadlines/{deadlineId}/close")
+    public ResponseEntity<AnswerTemplate<Deadline>> restartDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
+        return ResponseEntity.status(202).body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, false), null));
+    }
 
-        @GetMapping(path="/deadlines/{deadlineId}")
-        public ResponseEntity<AnswerTemplate<Deadline>> getSingleDeadline(@RequestHeader HttpHeaders httpHeaders,
-                                               @PathVariable ("deadlineId") String deadlineId) throws UserException {
-            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.getDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
-        }
+    @SessionRequired
+    @GetMapping(path="/deadlines/{deadlineId}")
+    public ResponseEntity<AnswerTemplate<Deadline>> getSingleDeadline(@RequestHeader HttpHeaders httpHeaders,
+                                                                      @PathVariable ("deadlineId") String deadlineId) throws UserException {
+        return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.getDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
+    }
 
-        @PutMapping(path="/deadlines/{deadlineId}")
-        public ResponseEntity<AnswerTemplate<Deadline>> updateDeadline(@RequestHeader HttpHeaders httpHeaders,
-                                                                       @PathVariable ("deadlineId") String deadlineId,
-                                                                       @RequestBody String deadlineRequest) throws UserException {
-            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.updateDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, deadlineRequest), null));
-        }
+    @SessionRequired
+    @PutMapping(path="/deadlines/{deadlineId}")
+    public ResponseEntity<AnswerTemplate<Deadline>> updateDeadline(@RequestHeader HttpHeaders httpHeaders,
+                                                                   @PathVariable ("deadlineId") String deadlineId,
+                                                                   @RequestBody String deadlineRequest) throws UserException {
+        return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.updateDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, deadlineRequest), null));
+    }
 
+    @SessionRequired
+    @DeleteMapping(path="/deadlines/{deadlineId}")
+    public ResponseEntity<AnswerTemplate<Deadline>> deleteOwnDeadline(@RequestHeader HttpHeaders httpHeaders,
+                                                                      @PathVariable("deadlineId") String deadlineId) throws UserException {
+        return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.deleteDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
+    }
 
-        @DeleteMapping(path="/deadlines/{deadlineId}")
-        public ResponseEntity<AnswerTemplate<Deadline>> deleteOwnDeadline(@RequestHeader HttpHeaders httpHeaders,
-                                                                          @PathVariable("deadlineId") String deadlineId) throws UserException {
-            return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.deleteDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
-        }
-
-        @GetMapping(path="/deadlines")
-        public ResponseEntity<AnswerTemplate<ListAnswer<Deadline>>> getOwnDeadlineWithName(@RequestHeader HttpHeaders httpHeaders,
-                                                                                           @RequestParam Map<String, String> params) throws UserException, NoSuchFieldException {
-            String sessionId = httpHeaders.getFirst("X-Session-Id");
-            return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer<>(deadlineService.getDeadlinesWithFilters(sessionId, params),
-                    deadlineService.countDeadlines(sessionId)), null));
-        }
+    @SessionRequired
+    @GetMapping(path="/deadlines")
+    public ResponseEntity<AnswerTemplate<ListAnswer<Deadline>>> getOwnDeadlineWithName(@RequestHeader HttpHeaders httpHeaders,
+                                                                                       @RequestParam Map<String, String> params) throws UserException, NoSuchFieldException {
+        String sessionId = httpHeaders.getFirst("X-Session-Id");
+        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer<>(deadlineService.getDeadlinesWithFilters(sessionId, params),
+                deadlineService.countDeadlines(sessionId)), null));
+    }
 
 
     /**
      * @ TODO: 30.07.2021
      */
+    @SessionRequired
     @GetMapping(path="/deadlines/sources")
-        public ResponseEntity getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) {
-            return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer(new ArrayList()), null));
-        }
+    public ResponseEntity getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) {
+        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer(new ArrayList()), null));
+    }
 
 
 

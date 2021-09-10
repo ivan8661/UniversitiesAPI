@@ -4,7 +4,6 @@ package com.scheduleapigateway.apigateway.Services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.shared.Application;
-import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Entities.NewsSource;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
@@ -12,7 +11,6 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionReposi
 import com.scheduleapigateway.apigateway.Entities.VK.*;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
-import com.scheduleapigateway.apigateway.SchedCoreApplication;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -47,7 +45,6 @@ public class NewsService {
     private static final Pattern titlePattern = Pattern.compile("^(.*?)(\\.|(?=\\n))");
 
 
-    @SessionRequired
     public NewsSource changeEnabledFeedSource(String sessionId, String newsSourceId, String data) throws JsonProcessingException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         NewsSource[] feedSourceFromUser = new ObjectMapper().readValue(appUser.getNews(), NewsSource[].class);
@@ -65,7 +62,6 @@ public class NewsService {
     }
 
 
-    @SessionRequired
     public List<VKNews> getFeedBySource(String sessionId, String sourceId, String limit, String offset) throws JsonProcessingException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         List<VKNews> news = new ArrayList<>();
@@ -77,7 +73,7 @@ public class NewsService {
         }
         return news;
     }
-    @SessionRequired
+
     public List<VKNews> getFeed(String sessionId) throws JsonProcessingException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         ArrayList<VKNews> news = new ArrayList<>();
@@ -134,7 +130,6 @@ public class NewsService {
         return list;
     }
 
-    @SessionRequired
     public ArrayList<NewsSource> getNewsSources(String sessionId) throws UserException {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         if(appUser.getUniversityId() == null || appUser.getNews() == null){
@@ -143,7 +138,6 @@ public class NewsService {
         return getFeedSourcesFromString(appUser.getNews());
     }
 
-    @SessionRequired
     public NewsSource getNewsSource(String sessionId, String sourceId) {
         AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
         if(appUser.getUniversityId() == null || appUser.getNews() == null){

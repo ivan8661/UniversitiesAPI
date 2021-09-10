@@ -18,7 +18,7 @@ public class UserException extends Exception {
     public UserException(UserExceptionType type, String message) {
         this.type = type;
         this.message = message;
-        this.data = null;
+        this.data = getStackTrace();
     }
 
     public UserException(UserExceptionType type, Object data) {
@@ -30,7 +30,7 @@ public class UserException extends Exception {
     public UserException(UserExceptionType type) {
         this.type = type;
         this.message = type.getDefaultMessage();
-        this.data = null;
+        this.data = getStackTrace();
     }
 
     public int getId() {
@@ -42,9 +42,6 @@ public class UserException extends Exception {
     }
 
     public Object getData() {
-        if (data == null || data.equals("")) {
-            return getStackTrace();
-        }
         return data;
     }
 

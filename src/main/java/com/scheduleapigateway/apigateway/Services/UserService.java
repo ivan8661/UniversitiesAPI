@@ -143,13 +143,11 @@ public class UserService {
      * @param sessionId current user sessionId
      * @throws UserException exception if user is missed
      */
-    @SessionRequired
     public void removeUser(String sessionId) {
             AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
             userRepository.delete(user);
     }
 
-    @SessionRequired
     public AppUser getUser(String sessionId) throws UserException {
             AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
             return setUserObjects(user);
@@ -212,7 +210,6 @@ public class UserService {
 
     }
 
-    @SessionRequired
     public AppUser updateUser(String sessionId, String params) throws UserException {
         JSONObject paramsJson = new JSONObject(params);
 

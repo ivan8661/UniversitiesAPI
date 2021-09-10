@@ -9,7 +9,9 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+
 
 @Aspect
 @Component
@@ -20,14 +22,23 @@ public class SessionCheckAspect {
 
     @Around("@annotation(SessionRequired)")
     public Object checkSessionId(ProceedingJoinPoint joinPoint) throws Throwable {
-        if(joinPoint.getArgs()[0] == null){
-            throw new UserException(UserExceptionType.EMPTY_SESSION);
-        }
-        String sessionId = joinPoint.getArgs()[0].toString();
-            UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
-            if (userSession == null) {
-                throw new UserException(UserExceptionType.WRONG_SESSION);
+        for( Object arg : joinPoint.getArgs() ) {
+            if(arg instanceof HttpHeaders) {
+                HttpHeaders headers = (HttpHeaders) arg;
+                String sessionId = headers.getFirst("X-Session-Id");
+
+                if(sessionId == null){
+                    throw new UserException(UserExceptionType.EMPTY_SESSION);
+                }
+
+                UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
+                if (userSession == null) {
+                    throw new UserException(UserExceptionType.WRONG_SESSION);
+                }
+
+                break;
             }
+        }
         return joinPoint.proceed();
     }
 }

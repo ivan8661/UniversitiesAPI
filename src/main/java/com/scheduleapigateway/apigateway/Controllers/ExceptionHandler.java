@@ -32,31 +32,31 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NoHandlerFoundException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleFoundException(NoHandlerFoundException exception) {
-        UserException ex = new UserException(UserExceptionType.ENDPOINT_NOT_FOUND);
+        UserException ex = new UserException(UserExceptionType.ENDPOINT_NOT_FOUND, exception);
         return handleUserException(ex);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(ServerErrorException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleInternalErrorException(ServerErrorException exception) {
-        UserException ex = new UserException(UserExceptionType.SERVER_ERROR);
+        UserException ex = new UserException(UserExceptionType.SERVER_ERROR, exception);
         return handleUserException(ex);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NoSuchFieldException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleNoSuchFieldException(NoSuchFieldException exception) {
-        UserException ex = new UserException(UserExceptionType.OBJECT_NOT_FOUND);
+        UserException ex = new UserException(UserExceptionType.OBJECT_NOT_FOUND, exception);
         return handleUserException(ex);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(HttpClientErrorException.BadRequest.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleBadRequestException(HttpClientErrorException exception) {
-        UserException ex = new UserException(UserExceptionType.VALIDATION_ERROR);
+        UserException ex = new UserException(UserExceptionType.VALIDATION_ERROR, exception);
         return handleUserException(ex);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleOtherException(Exception exception) {
-        UserException ex = new UserException(UserExceptionType.SERVER_ERROR);
+        UserException ex = new UserException(UserExceptionType.SERVER_ERROR, exception);
         return handleUserException(ex);
     }
 }
