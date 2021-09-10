@@ -1,7 +1,8 @@
 package com.scheduleapigateway.apigateway.Controllers.DataController;
 
+import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
-import com.scheduleapigateway.apigateway.Controllers.ResultObject;
+import com.scheduleapigateway.apigateway.Controllers.AuthResponseObject;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Services.SessionService;
@@ -46,29 +47,30 @@ public class UserController {
      */
     @Transactional
     @PostMapping(path = "/auth/vk")
-    public ResponseEntity<AnswerTemplate<ResultObject<AppUser>>> authVK(@RequestBody String VKAuthData, @RequestHeader HttpHeaders httpHeaders) throws UserException {
+    public ResponseEntity<AnswerTemplate<AuthResponseObject>> authVK(@RequestBody String VKAuthData, @RequestHeader HttpHeaders httpHeaders) throws UserException {
         AppUser user = userService.vkAuthorization(new JSONObject(VKAuthData).optString("token"));
         String userSession = sessionService.setUserSession(user.getId(), httpHeaders.getFirst("x-platform"));
-        return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new ResultObject<>(userSession, user), null));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new AuthResponseObject(userSession, user), null));
     }
 
+    @Transactional
+    @PostMapping(path="/auth/{serviceId}")
+    public ResponseEntity<AnswerTemplate<AuthResponseObject>> authService(@RequestHeader HttpHeaders httpHeaders,
+                                                                                   @RequestBody String authorization,
+                                                                                   @PathVariable("serviceId") String serviceId) throws UserException {
+        AppUser user = userService.authUserService(authorization, serviceId);
+        String userSession = sessionService.setUserSession(user.getId(), httpHeaders.getFirst("x-platform"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new AuthResponseObject(userSession, user), null));
+    }
 
+    @SessionRequired
     @GetMapping(path="/me")
     public ResponseEntity<AnswerTemplate<AppUser>> getUser(@RequestHeader HttpHeaders httpHeaders) throws UserException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(userService.getUser(httpHeaders.getFirst("X-Session-Id")), null));
     }
 
 
-    @Transactional
-    @PostMapping(path="/auth/{serviceId}")
-    public ResponseEntity<AnswerTemplate<ResultObject<AppUser>>> authService(@RequestHeader HttpHeaders httpHeaders,
-                                                               @RequestBody String authorization,
-                                                               @PathVariable("serviceId") String serviceId) throws UserException {
-        AppUser user = userService.authUserService(authorization, serviceId);
-        String userSession = sessionService.setUserSession(user.getId(), httpHeaders.getFirst("x-platform"));
-        return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new ResultObject<>(userSession, user), null));
-    }
-
+    @SessionRequired
     @PutMapping(path="/me")
     public ResponseEntity<AnswerTemplate<AppUser>> updateUser(@RequestHeader HttpHeaders httpHeaders,
                                                               @RequestBody String params) throws UserException {

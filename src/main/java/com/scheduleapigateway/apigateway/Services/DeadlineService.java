@@ -42,15 +42,12 @@ public class DeadlineService {
     @Autowired
     private EurekaInstance eurekaInstance;
 
-
-    @SessionRequired
     public Deadline getDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
         deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadline.getSubjectId()));
         return deadline;
     }
 
-    @SessionRequired
     public Deadline deleteDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
         deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadlineId));
@@ -58,13 +55,11 @@ public class DeadlineService {
         return deadline;
     }
 
-    @SessionRequired
     public long countDeadlines(@NonNull String sessionId) throws UserException {
         UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
         return deadlineRepository.countAllByUser(userSession.getUser());
     }
 
-    @SessionRequired
     public List<Deadline> getDeadlinesWithFilters(@NonNull String sessionId, Map<String, String> params) throws NoSuchFieldException, UserException {
 
         UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
@@ -81,7 +76,6 @@ public class DeadlineService {
         return deadlines;
     }
 
-    @SessionRequired
     public Deadline createDeadline(@NonNull String sessionId, String bodyDeadline) throws UserException {
         Deadline deadline = setDeadlineFields(new JSONObject(bodyDeadline), new Deadline(), sessionId);
         deadline.setId(DigestUtils.sha256Hex(UUID.randomUUID().toString()));
@@ -92,7 +86,6 @@ public class DeadlineService {
         return deadline;
     }
 
-    @SessionRequired
     public Deadline updateDeadline(@NonNull String sessionId, String deadlineId, String bodyDeadline) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
         setDeadlineFields(new JSONObject(bodyDeadline), deadline, sessionId);
@@ -100,7 +93,6 @@ public class DeadlineService {
         return deadline;
     }
 
-    @SessionRequired
     public Deadline restartOrCloseDeadline(@NonNull String sessionId, String deadlineId, boolean close) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
             deadline.setIsClosed(close);
