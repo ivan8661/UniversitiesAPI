@@ -45,7 +45,7 @@ public class AppUser {
     private String secondName;
 
     @Column(name="avatar_url", length = 512)
-    @JsonProperty("avatarURL")
+    @JsonProperty("avatar")
     private String avatarURL;
 
     @Column(name="vk_id")
