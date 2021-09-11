@@ -35,7 +35,7 @@ public class AppUser {
     private String login;
 
     @Column(name="password")
-    @JsonProperty("servicePassword")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name="name")
