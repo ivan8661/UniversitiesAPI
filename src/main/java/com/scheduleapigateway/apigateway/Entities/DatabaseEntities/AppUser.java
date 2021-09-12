@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -35,7 +33,7 @@ public class AppUser {
     private String login;
 
     @Column(name="password")
-    @JsonProperty("servicePassword")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name="name")
@@ -47,7 +45,7 @@ public class AppUser {
     private String secondName;
 
     @Column(name="avatar_url", length = 512)
-    @JsonProperty("avatarURL")
+    @JsonProperty("avatar")
     private String avatarURL;
 
     @Column(name="vk_id")
@@ -60,7 +58,7 @@ public class AppUser {
 
     @JsonProperty("isAdsEnabled")
     @Column(name = "ads_enabled", columnDefinition="tinyint(1) default 0")
-    private boolean AdsEnabled;
+    private boolean adsEnabled;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "cookie_user")
@@ -95,9 +93,6 @@ public class AppUser {
     @Transient
     @JsonProperty("scheduleUser")
     private ScheduleUser scheduleUser;
-
-
-
 
     public AppUser() {
     }
@@ -202,11 +197,11 @@ public class AppUser {
     }
 
     public boolean isAdsEnabled() {
-        return AdsEnabled;
+        return adsEnabled;
     }
 
     public void setAdsEnabled(boolean adsEnabled) {
-        AdsEnabled = adsEnabled;
+        this.adsEnabled = adsEnabled;
     }
 
     public String getUniversityId() {
@@ -238,11 +233,11 @@ public class AppUser {
     }
 
     public Boolean getIsAdsEnabled() {
-        return AdsEnabled;
+        return adsEnabled;
     }
 
     public void setIsAdsEnabled(Boolean adsEnabled) {
-        AdsEnabled = adsEnabled;
+        this.adsEnabled = adsEnabled;
     }
 
     public String getCookieUser() {
@@ -287,7 +282,7 @@ public class AppUser {
                 ", avatarURL='" + avatarURL + '\'' +
                 ", vkId=" + vkId +
                 ", news='" + news + '\'' +
-                ", AdsEnabled=" + AdsEnabled +
+                ", AdsEnabled=" + adsEnabled +
                 ", cookieUser='" + cookieUser + '\'' +
                 ", externalId='" + externalId + '\'' +
                 ", userSessions=" + userSessions +

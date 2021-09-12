@@ -44,13 +44,19 @@ public class DeadlineService {
 
     public Deadline getDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
-        deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadline.getSubjectId()));
+
+        String subjectId = deadline.getSubjectId();
+        String universityId = deadline.getUniversityId();
+        if (subjectId != null && universityId != null) {
+            Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
+            deadline.setSubject(deadlineSubject);
+        }
+
         return deadline;
     }
 
     public Deadline deleteDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
-        deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadlineId));
         deadlineRepository.delete(deadline);
         return deadline;
     }
@@ -90,14 +96,30 @@ public class DeadlineService {
         Deadline deadline = checkForExist(deadlineId);
         setDeadlineFields(new JSONObject(bodyDeadline), deadline, sessionId);
         deadlineRepository.save(deadline);
+
+        String subjectId = deadline.getSubjectId();
+        String universityId = deadline.getUniversityId();
+        if (subjectId != null && universityId != null) {
+            Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
+            deadline.setSubject(deadlineSubject);
+        }
+
         return deadline;
     }
 
     public Deadline restartOrCloseDeadline(@NonNull String sessionId, String deadlineId, boolean close) throws UserException {
         Deadline deadline = checkForExist(deadlineId);
-            deadline.setIsClosed(close);
-            deadlineRepository.save(deadline);
-            return deadline;
+        deadline.setIsClosed(close);
+        deadlineRepository.save(deadline);
+
+        String subjectId = deadline.getSubjectId();
+        String universityId = deadline.getUniversityId();
+        if (subjectId != null && universityId != null) {
+            Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
+            deadline.setSubject(deadlineSubject);
+        }
+
+        return deadline;
     }
 
 
@@ -113,7 +135,7 @@ public class DeadlineService {
                                                 deadline.setSubject(getSubjectFromService(userSessionRepository.findUserSessionById(sessionId).getUser().getUniversityId(), subjectId));
                                                 deadline.setSubjectId(subjectId);
                                                 AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
-                                                if(appUser.getUniversityId()!=null)
+                                                if(appUser.getUniversityId() != null)
                                                  deadline.setUniversityId(appUser.getUniversityId());
                                             } else {
                                                 deadline.setSubjectId(null);
@@ -144,7 +166,7 @@ public class DeadlineService {
                     application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
                     HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
         }
         return subjectResponseEntity.getBody();
     }
@@ -155,7 +177,7 @@ public class DeadlineService {
 
 
         for(Deadline deadline : deadlines) {
-            if(deadline.getSubjectId()!=null && deadline.getUniversityId()!=null) {
+            if(deadline.getSubjectId() != null && deadline.getUniversityId() != null) {
                 subjectsId.put(deadline.getUniversityId(), deadline.getSubjectId());
                 universities.add(deadline.getUniversityId());
             }
