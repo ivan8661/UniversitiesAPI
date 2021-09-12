@@ -60,32 +60,6 @@ public class ScheduleUserService {
         return new ScheduleUser(scheduleUserJson.optString("id"), scheduleUserJson.optString("name"), university);
     }
 
-//    @Deprecated
-//    public List<ScheduleUser> getScheduleUsers(String universityId, String params, ScheduleUser.Type scheduleType) throws UserException {
-//        Application application = eurekaInstance.getApplication(universityId);
-//        ResponseEntity<String> entity;
-//        try {
-//            String url = application.getInstances().get(0).getHomePageUrl() + scheduleType.rawValue() + "?" + params;
-//            entity = new RestTemplate().exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
-//        } catch (RestClientException e) {
-//            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
-//        }
-//
-//        LinkedList<ScheduleUser> scheduleUsers = new LinkedList<>();
-//
-//        JSONObject serviceResponse = new JSONObject(entity.getBody());
-//        JSONArray scheduleUserArray = new JSONArray(entity.getBody());
-//
-//        University university = universityService.getUniversity(universityId);
-//
-//        for(int i = 0; i < scheduleUserArray.length(); ++i) {
-//            JSONObject professor = scheduleUserArray.getJSONObject(i);
-//            scheduleUsers.add(new ScheduleUser(professor.optString("_id"), professor.optString("name"),
-//                    university));
-//        }
-//        return scheduleUsers;
-//    }
-
     public ListAnswer<ScheduleUser> getScheduleUsers(String universityId, String params, ScheduleUser.Type scheduleType) throws UserException {
         Application application = eurekaInstance.getApplication(universityId);
         ResponseEntity<String> entity;
