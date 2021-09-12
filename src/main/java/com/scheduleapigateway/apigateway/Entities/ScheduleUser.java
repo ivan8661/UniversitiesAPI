@@ -4,6 +4,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ScheduleUser {
 
+    public enum Type {
+        GROUP("group"),
+        PROFESSOR("professor");
+
+        private final String rawValue;
+
+        Type(String rawValue) {
+            this.rawValue = rawValue;
+        }
+
+        public String rawValue() {
+            return rawValue;
+        }
+    }
+
     @JsonProperty("_id")
     public String id;
 

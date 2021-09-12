@@ -27,7 +27,8 @@ public class ScheduleController {
     @GetMapping("/universities/{universityId}/schedule/{scheduleUserId}")
     public ResponseEntity<AnswerTemplate<ListAnswer<Lesson>>> lessons(@PathVariable("universityId") String universityId,
                                                                       @PathVariable("scheduleUserId") String scheduleUserId) throws UserException {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer<>(scheduleService.getLessons(universityId, scheduleUserId)), null));
+        ListAnswer<Lesson> lessonList = scheduleService.getLessons(universityId, scheduleUserId);
+        return ResponseEntity.ok().body(new AnswerTemplate<>(lessonList, null));
     }
 
     @GetMapping("/universities/{universityId}/lessons/{lessonId}")

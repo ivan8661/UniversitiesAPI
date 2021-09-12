@@ -21,7 +21,7 @@ public class UniversityController {
 
     @GetMapping("/universities")
     public ResponseEntity<AnswerTemplate<ListAnswer<University>>> getUniversities() throws UserException {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer<>(universityService.getUniversities()), null));
+        return ResponseEntity.ok().body(new AnswerTemplate<>(universityService.getUniversities(), null));
     }
 
     @GetMapping("/universities/{universityId}")

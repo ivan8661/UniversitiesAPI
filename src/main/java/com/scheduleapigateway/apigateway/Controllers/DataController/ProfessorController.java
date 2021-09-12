@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @ControllerAdvice
@@ -28,11 +29,14 @@ public class ProfessorController {
     @GetMapping("/universities/{universityId}/professors")
     public ResponseEntity<AnswerTemplate<ListAnswer<ScheduleUser>>> getProfessors(@PathVariable("universityId") String universityId,
                                                                                   @RequestParam Map<String, String> params) throws UserException {
-        return ResponseEntity.ok().body(new AnswerTemplate<>
-                                       (new ListAnswer<>
-                        (scheduleUserService.getScheduleUsers(universityId,
-                                scheduleUserService.getParamsFromMap(params), "professors")),
-                                               null));
+
+        ListAnswer<ScheduleUser> list = scheduleUserService.getScheduleUsers(
+                universityId,
+                scheduleUserService.getParamsFromMap(params),
+                ScheduleUser.Type.PROFESSOR
+        );
+
+        return ResponseEntity.ok().body(new AnswerTemplate<>(list,null));
     }
 
     @GetMapping("/universities/{universityId}/professors/{professorId}")

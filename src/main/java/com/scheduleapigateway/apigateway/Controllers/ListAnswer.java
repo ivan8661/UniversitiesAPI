@@ -12,18 +12,10 @@ public class ListAnswer<T> {
     @JsonProperty("items")
     private List<T> listAnswer;
 
-    public ListAnswer(List<T> listAnswer){
-        this.listAnswer = listAnswer;
-    }
-
     public ListAnswer(List<T> listAnswer, long totalCount) {
         this.totalCount = totalCount;
         this.listAnswer = listAnswer;
     }
-
-    public ListAnswer() {
-    }
-
 
     public long getTotalCount() {
         return totalCount;

@@ -2,6 +2,7 @@ package com.scheduleapigateway.apigateway.Services;
 
 
 import com.netflix.discovery.shared.Application;
+import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Lesson;
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
@@ -28,7 +29,7 @@ public class ScheduleService {
     @Autowired
     private EurekaInstance eurekaInstance;
 
-    public List<Lesson> getLessons(String universityId, String scheduleUserId) throws UserException {
+    public ListAnswer<Lesson> getLessons(String universityId, String scheduleUserId) throws UserException {
 
         Application application = eurekaInstance.getApplication(universityId);
 
@@ -40,8 +41,8 @@ public class ScheduleService {
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
-
-        return lessons.getBody();
+        List<Lesson> lessonList = lessons.getBody();
+        return new ListAnswer<>(lessonList, lessonList.size());
     }
 
     public Lesson getLesson(String universityId, String lessonId) throws UserException {
