@@ -6,6 +6,7 @@ import GetGraphQL.QueryOperator;
 import GetGraphQL.QueryParametersBuilder;
 import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
+import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.UserSession;
@@ -19,6 +20,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -61,12 +63,7 @@ public class DeadlineService {
         return deadline;
     }
 
-    public long countDeadlines(@NonNull String sessionId) throws UserException {
-        UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
-        return deadlineRepository.countAllByUser(userSession.getUser());
-    }
-
-    public List<Deadline> getDeadlinesWithFilters(@NonNull String sessionId, Map<String, String> params) throws NoSuchFieldException, UserException {
+    public ListAnswer<Deadline> getDeadlinesWithFilters(@NonNull String sessionId, Map<String, String> params) throws NoSuchFieldException, UserException {
 
         UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
         AppUser user = userSession.getUser();
@@ -77,9 +74,11 @@ public class DeadlineService {
                 .build();
 
         QueryParametersBuilder<Deadline> qpBuilder = new QueryParametersBuilder<>(params, Deadline.class);
-        List<Deadline> deadlines = deadlineRepository.findAll(qpBuilder.getSpecification(userFilter), qpBuilder.getPage()).getContent();
+
+        Page<Deadline> page = deadlineRepository.findAll(qpBuilder.getSpecification(userFilter), qpBuilder.getPage());
+        List<Deadline> deadlines = page.getContent();
         getSubjectListFromService(deadlines);
-        return deadlines;
+        return new ListAnswer<>(deadlines, page.getTotalElements());
     }
 
     public Deadline createDeadline(@NonNull String sessionId, String bodyDeadline) throws UserException {

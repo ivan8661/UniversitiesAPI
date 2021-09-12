@@ -2,6 +2,7 @@ package com.scheduleapigateway.apigateway.Services;
 
 
 import com.netflix.discovery.shared.Application;
+import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Lesson;
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
@@ -28,17 +29,16 @@ public class ScheduleService {
     @Autowired
     private EurekaInstance eurekaInstance;
 
-    public List<Lesson> getLessons(String universityId, String scheduleUserId) throws UserException {
+    public ListAnswer<Lesson> getLessons(String universityId, String scheduleUserId) throws UserException {
 
         Application application = eurekaInstance.getApplication(universityId);
 
-        ResponseEntity<LinkedList<Lesson>> lessons;
+        ResponseEntity<ListAnswer<Lesson>> lessons;
         try {
-            lessons = new RestTemplate().exchange(
-                    application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId,
-                    HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
+            String url = application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId;
+            lessons = new RestTemplate().exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
         } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
         }
 
         return lessons.getBody();

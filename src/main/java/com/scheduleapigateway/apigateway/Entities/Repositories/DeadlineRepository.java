@@ -19,6 +19,4 @@ public interface DeadlineRepository extends CrudRepository<Deadline, String>,
     Optional<Deadline> findById(String deadlineId);
 
     Page<Deadline> findAll(Specification<Deadline> spec, Pageable pageable);
-
-    long countAllByUser(AppUser user);
 }

@@ -1,6 +1,7 @@
 package com.scheduleapigateway.apigateway.Controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -12,18 +13,18 @@ public class ListAnswer<T> {
     @JsonProperty("items")
     private List<T> listAnswer;
 
-    public ListAnswer(List<T> listAnswer){
-        this.listAnswer = listAnswer;
-    }
+    @Deprecated
+    public ListAnswer(){}
 
     public ListAnswer(List<T> listAnswer, long totalCount) {
         this.totalCount = totalCount;
         this.listAnswer = listAnswer;
     }
 
-    public ListAnswer() {
+    public ListAnswer(Page<T> paginatedResponse) {
+        this.totalCount = paginatedResponse.getTotalElements();
+        this.listAnswer = paginatedResponse.getContent();
     }
-
 
     public long getTotalCount() {
         return totalCount;
