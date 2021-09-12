@@ -97,8 +97,7 @@ public class DeadlineController {
     public ResponseEntity<AnswerTemplate<ListAnswer<Deadline>>> getOwnDeadlineWithName(@RequestHeader HttpHeaders httpHeaders,
                                                                                        @RequestParam Map<String, String> params) throws UserException, NoSuchFieldException {
         String sessionId = httpHeaders.getFirst("X-Session-Id");
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer<>(deadlineService.getDeadlinesWithFilters(sessionId, params),
-                deadlineService.countDeadlines(sessionId)), null));
+        return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.getDeadlinesWithFilters(sessionId, params), null));
     }
 
 
