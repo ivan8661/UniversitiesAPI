@@ -42,7 +42,13 @@ public class GroupController {
     @GetMapping("/universities/{universityId}/groups")
     public ResponseEntity<AnswerTemplate<ListAnswer<ScheduleUser>>> getGroups(@PathVariable("universityId") String universityId,
                                                                               @RequestParam Map<String, String> params) throws UserException {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer<>(scheduleUserService.getScheduleUsers(universityId, scheduleUserService.getParamsFromMap(params), "groups")), null));
+        ListAnswer<ScheduleUser> list = scheduleUserService.getScheduleUsers(
+                universityId,
+                scheduleUserService.getParamsFromMap(params),
+                ScheduleUser.Type.GROUP
+        );
+
+        return ResponseEntity.ok().body(new AnswerTemplate<>(list,null));
     }
 
     /**

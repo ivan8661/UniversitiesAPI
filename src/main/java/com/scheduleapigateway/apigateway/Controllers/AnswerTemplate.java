@@ -1,6 +1,5 @@
 package com.scheduleapigateway.apigateway.Controllers;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 
 /**
@@ -9,15 +8,15 @@ import com.scheduleapigateway.apigateway.Exceptions.UserException;
  *  result: {}
  *  error: {}
  *  }
+ *
  * @author Poltorakov
  * @param <T> Generic for different objects
  */
-public class AnswerTemplate<T>{
+public class AnswerTemplate<T> {
 
+    final private T result;
 
-    private T result;
-
-    private UserException error;
+    final private UserException error;
 
     public AnswerTemplate(T result, UserException error) {
         this.result = result;

@@ -4,6 +4,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ScheduleUser {
 
+    public enum Type {
+        GROUP("groups"),
+        PROFESSOR("professors");
+
+        private final String rawValue;
+
+        Type(String rawValue) {
+            this.rawValue = rawValue;
+        }
+
+        public String rawValue() {
+            return rawValue;
+        }
+    }
+
     @JsonProperty("_id")
     public String id;
 
@@ -19,35 +34,15 @@ public class ScheduleUser {
         this.university = university;
     }
 
-    public ScheduleUser(String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public ScheduleUser() {
-    }
-
     public University getUniversity() {
         return university;
-    }
-
-    public void setUniversity(University university) {
-        this.university = university;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

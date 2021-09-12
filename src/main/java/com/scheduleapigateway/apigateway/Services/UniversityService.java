@@ -1,6 +1,7 @@
 package com.scheduleapigateway.apigateway.Services;
 
 import com.netflix.discovery.shared.Application;
+import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
@@ -48,13 +49,14 @@ public class UniversityService {
                     );
     }
 
-    public ArrayList<University> getUniversities() throws UserException {
+    public ListAnswer<University> getUniversities() throws UserException {
 
         List<Application> applications = eurekaInstance.getApplications();
         ArrayList<University> universities = new ArrayList<>();
         for (Application application : applications) {
 
-            ResponseEntity<String> universityInfo = new RestTemplate().exchange(application.getInstances().get(0).getHomePageUrl() + "universityInfo", HttpMethod.GET, HttpEntity.EMPTY, String.class);
+            String url = application.getInstances().get(0).getHomePageUrl() + "universityInfo";
+            ResponseEntity<String> universityInfo = new RestTemplate().exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
 
             if(universityInfo.getStatusCode().is2xxSuccessful()) {
                 JSONObject universityInfoJson = new JSONObject(universityInfo.getBody());
@@ -72,7 +74,7 @@ public class UniversityService {
                 throw new UserException(UserExceptionType.SERVER_ERROR, "Service" + application.getName() + " Error");
             }
         }
-        return universities;
+        return new ListAnswer<>(universities, universities.size());
     }
 
 
