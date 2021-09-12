@@ -1,7 +1,7 @@
 #!/bin/bash
 mvn clean package
 
-buildBranch=$(git rev-parse --abbrev-ref HEAD)
+buildBranch=$(git rev-parse --abbrev-ref HEAD | tr -d '-'| tr -d '/')
 buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')
 buildVersion="$buildBranch.$buildNumber"
 

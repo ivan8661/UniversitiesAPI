@@ -1,11 +1,15 @@
 package com.scheduleapigateway.apigateway.Exceptions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.http.HttpStatus;
 
-@JsonIgnoreProperties({"httpStatus", "stackTrace", "localizedMessage", "suppressed", "cause"})
+@JsonIgnoreProperties({"httpStatus", "stackTrace", "localizedMessage", "suppressed", "cause", "type"})
 public class UserException extends Exception {
+
+    @JsonIgnore
     private UserExceptionType type;
+
     private String message;
     private Object data;
 
