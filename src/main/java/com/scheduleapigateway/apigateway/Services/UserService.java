@@ -150,7 +150,10 @@ public class UserService {
 
     public AppUser getUser(String sessionId) throws UserException {
             AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
-            return setUserObjects(user);
+            try {
+                setUserObjects(user);
+            } catch (UserException e) { }
+            return user;
     }
 
     public AppUser authUserService(String authData, String universityId) throws UserException {
