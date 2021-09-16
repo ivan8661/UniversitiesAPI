@@ -2,6 +2,7 @@ package com.scheduleapigateway.apigateway.Controllers;
 
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
+import com.scheduleapigateway.apigateway.SchedCoreApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
@@ -34,12 +35,19 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NoHandlerFoundException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleFoundException(NoHandlerFoundException exception) {
-        UserException ex = new UserException(UserExceptionType.ENDPOINT_NOT_FOUND, exception);
+        SchedCoreApplication.getLogger().error("No Handler [" + exception.getHttpMethod() + "] " + exception.getRequestURL() + "\n Message: " + exception.getMessage());
+        // Костыль чтоб не словить пустой ответ из-за ошибки сериализации
+        HashMap<String, Object> debugInfo = new HashMap<>();
+        debugInfo.put("message", exception.getMessage());
+        debugInfo.put("stackTrace", exception.getStackTrace());
+
+        UserException ex = new UserException(UserExceptionType.ENDPOINT_NOT_FOUND, debugInfo);
         return handleUserException(ex);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(ServerErrorException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleInternalErrorException(ServerErrorException exception) {
+        SchedCoreApplication.getLogger().error("ServerError: \n   Method: " + exception.getHandlerMethod() + "\n   Message: " + exception.getMessage());
         // Костыль чтоб не словить пустой ответ из-за ошибки сериализации
         HashMap<String, Object> debugInfo = new HashMap<>();
         debugInfo.put("message", exception.getMessage());
