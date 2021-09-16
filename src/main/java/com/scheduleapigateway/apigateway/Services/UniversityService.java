@@ -69,11 +69,9 @@ public class UniversityService {
                         universityInfoJson.optString("referenceWeek")
                 ));
 
-            } else {
-
-                throw new UserException(UserExceptionType.SERVER_ERROR, "Service" + application.getName() + " Error");
             }
         }
+
         return new ListAnswer<>(universities, universities.size());
     }
 
