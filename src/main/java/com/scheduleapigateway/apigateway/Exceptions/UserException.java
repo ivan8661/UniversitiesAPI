@@ -51,7 +51,11 @@ public class UserException extends Exception {
 
     @Override
     public String getMessage() {
-        return message;
+        if ( message != null && !message.isEmpty()) {
+            return message;
+        } else {
+            return type.getDefaultMessage();
+        }
     }
 
     public HttpStatus getHttpStatus() {
