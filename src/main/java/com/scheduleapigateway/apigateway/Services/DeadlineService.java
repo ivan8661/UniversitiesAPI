@@ -16,6 +16,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
+import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,15 +160,13 @@ public class DeadlineService {
             return null;
         }
 
-        ResponseEntity<Subject> subjectResponseEntity;
+        Subject subjectResponseEntity;
         try {
-            subjectResponseEntity = new RestTemplate().exchange(
-                    application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
-                    HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
+            subjectResponseEntity = new ServiceRequest().request(application,"subjects/" + subjectId, Subject.class);
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
         }
-        return subjectResponseEntity.getBody();
+        return subjectResponseEntity;
     }
 
     private List<Deadline> getSubjectListFromService(List<Deadline> deadlines) throws UserException {
@@ -194,16 +193,14 @@ public class DeadlineService {
 
             HttpEntity httpEntity = new HttpEntity(tmpSet, new HttpHeaders());
 
-            ResponseEntity<List<Subject>> subjectResponseEntity;
+            List<Subject> subjects;
             try {
-                subjectResponseEntity = new RestTemplate().exchange(
-                        application.getInstances().get(0).getHomePageUrl() + "subjects",
-                        HttpMethod.POST, httpEntity, new ParameterizedTypeReference<>() {});
+                subjects = new ServiceRequest().request(application,"subjects", new ParameterizedTypeReference<>(){} );
             } catch (RestClientException e) {
                 throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "subject not found");
             }
 
-            List<Subject> subjects = subjectResponseEntity.getBody();
+
 
             if(subjects!=null)
             for(Subject subject : subjects){

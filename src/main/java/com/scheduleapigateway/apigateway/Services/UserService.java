@@ -14,6 +14,7 @@ import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
+import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,15 +188,14 @@ public class UserService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity requestEntity = new HttpEntity(body.toString(), httpHeaders);
 
-        ResponseEntity<String> userInfo;
+        String userInfo;
         try {
-            userInfo = new RestTemplate().exchange(application.getInstances().get(0).getHomePageUrl() + "auth",
-                    HttpMethod.POST, requestEntity, String.class);
+            userInfo = new ServiceRequest().request(application,"auth", String.class);
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect login or password");
         }
 
-        JSONObject user = new JSONObject(userInfo.getBody());
+        JSONObject user = new JSONObject(userInfo);
         String id = user.optString("_id");
         String firstName = user.optString("firstname");
         String secondName = user.optString("lastname");
