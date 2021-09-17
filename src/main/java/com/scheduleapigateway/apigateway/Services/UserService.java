@@ -171,11 +171,21 @@ public class UserService {
         AppUser user = getUserFromService(universityId, login, password);
         newsService.setFeedSources(user, universityId);
         if(userRepository.findByLogin(user.getLogin())!=null){
-            return setUserObjects(userRepository.findByLogin(user.getLogin()));
+            try {
+                user = setUserObjects(userRepository.findByLogin(user.getLogin()));
+            } catch (UserException e) {
+                if( e.getId() != 404) throw e;
+            }
         } else {
             userRepository.save(user);
-            return setUserObjects(user);
+            try {
+                user = setUserObjects(userRepository.findByLogin(user.getLogin()));
+            } catch (UserException e) {
+                if( e.getId() != 404) throw e;
+            }
         }
+
+        return user;
     }
 
     private AppUser getUserFromService(String universityId, String login, String password) throws UserException, ServiceException {
@@ -190,11 +200,9 @@ public class UserService {
         HttpEntity requestEntity = new HttpEntity(body.toString(), httpHeaders);
 
         String userInfo;
-        try {
-            userInfo = new ServiceRequest().post(application,"auth", requestEntity, String.class);
-        } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect login or password", e.getMessage());
-        }
+
+        userInfo = new ServiceRequest().post(application,"auth", requestEntity, String.class);
+
 
         JSONObject user = new JSONObject(userInfo);
         String id = user.optString("_id");
@@ -202,7 +210,13 @@ public class UserService {
         String secondName = user.optString("lastname");
         String groupId = user.optString("groupId");
         String groupName = user.optString("groupName");
-        University university = universityService.getUniversity(universityId);
+
+        University university = null;
+        try {
+            university = universityService.getUniversity(universityId);
+        } catch (UserException e) {
+            if( e.getId() != 404 ) throw e;
+        }
 
         ScheduleUser scheduleUser;
         if(id!=null && groupName != null && !id.equals("") && !groupName.equals("")) {
