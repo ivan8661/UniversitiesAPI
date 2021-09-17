@@ -107,9 +107,6 @@ public class DeadlineController {
     @SessionRequired
     @GetMapping(path="/deadlines/sources")
     public ResponseEntity getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer(new ArrayList() , 0), null));
+        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer(deadlineService.getSources(httpHeaders.getFirst("X-Session-Id")), 0), null));
     }
-
-
-
 }
