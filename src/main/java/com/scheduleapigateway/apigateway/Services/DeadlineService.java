@@ -14,6 +14,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.DeadlineRepositor
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
@@ -165,7 +166,7 @@ public class DeadlineService {
         Subject subjectResponseEntity;
         try {
             subjectResponseEntity = new ServiceRequest().request(application,"subjects/" + subjectId, Subject.class);
-        } catch (RestClientException e) {
+        } catch (RestClientException | ServiceException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
         }
         return subjectResponseEntity;
@@ -198,8 +199,7 @@ public class DeadlineService {
             List<Subject> subjects = new ArrayList<>();
             try {
                 subjects = new ServiceRequest().request(application,"subjects", new ParameterizedTypeReference<>(){} );
-            } catch (RestClientException e) { }
-            catch (UserException e) {}
+            } catch (RestClientException | UserException | ServiceException e) { }
 
 
             if(subjects!=null)

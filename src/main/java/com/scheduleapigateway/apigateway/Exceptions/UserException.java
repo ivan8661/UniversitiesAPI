@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.http.HttpStatus;
 
 @JsonIgnoreProperties({"httpStatus", "stackTrace", "localizedMessage", "suppressed", "cause", "type"})
-public class UserException extends Exception {
+public class UserException extends Exception implements ErrorResponseAnswer {
 
     @JsonIgnore
     private UserExceptionType type;

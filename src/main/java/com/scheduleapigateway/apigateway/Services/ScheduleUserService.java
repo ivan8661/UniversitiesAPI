@@ -4,6 +4,7 @@ import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
@@ -61,7 +62,7 @@ public class ScheduleUserService {
         return new ScheduleUser(scheduleUserJson.optString("id"), scheduleUserJson.optString("name"), university);
     }
 
-    public ListAnswer<ScheduleUser> getScheduleUsers(String universityId, String params, ScheduleUser.Type scheduleType) throws UserException {
+    public ListAnswer<ScheduleUser> getScheduleUsers(String universityId, String params, ScheduleUser.Type scheduleType) throws UserException, ServiceException {
         Application application = eurekaInstance.getApplication(universityId);
 
         String entity;

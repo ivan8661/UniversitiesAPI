@@ -4,6 +4,7 @@ import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.Controllers.AuthResponseObject;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Services.SessionService;
 import com.scheduleapigateway.apigateway.Services.UserService;
@@ -57,7 +58,7 @@ public class UserController {
     @PostMapping(path="/auth/{serviceId}")
     public ResponseEntity<AnswerTemplate<AuthResponseObject>> authService(@RequestHeader HttpHeaders httpHeaders,
                                                                                    @RequestBody String authorization,
-                                                                                   @PathVariable("serviceId") String serviceId) throws UserException {
+                                                                                   @PathVariable("serviceId") String serviceId) throws UserException, ServiceException {
         AppUser user = userService.authUserService(authorization, serviceId);
         String userSession = sessionService.setUserSession(user.getId(), httpHeaders.getFirst("x-platform"));
         return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new AuthResponseObject(userSession, user), null));
@@ -73,7 +74,7 @@ public class UserController {
     @SessionRequired
     @PutMapping(path="/me")
     public ResponseEntity<AnswerTemplate<AppUser>> updateUser(@RequestHeader HttpHeaders httpHeaders,
-                                                              @RequestBody String params) throws UserException {
+                                                              @RequestBody String params) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(userService.updateUser(httpHeaders.getFirst("X-Session-Id"),    params), null));
     }
 

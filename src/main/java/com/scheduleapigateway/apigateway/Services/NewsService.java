@@ -10,6 +10,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Entities.VK.*;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
@@ -153,7 +154,7 @@ public class NewsService {
         return null;
     }
 
-    public void setFeedSources(AppUser appUser, String universityId) throws UserException {
+    public void setFeedSources(AppUser appUser, String universityId) throws UserException, ServiceException {
         appUser.setNews(getUniversityNewsList(universityId));
     }
 
@@ -170,7 +171,7 @@ public class NewsService {
         return feedSources;
     }
 
-    private String getUniversityNewsList(String universityId) throws UserException {
+    private String getUniversityNewsList(String universityId) throws UserException, ServiceException {
         Application application = eurekaInstance.getApplication(universityId);
         String newsSources;
         try {

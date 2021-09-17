@@ -1,5 +1,6 @@
 package com.scheduleapigateway.apigateway.Controllers;
 
+import com.scheduleapigateway.apigateway.Exceptions.ErrorResponseAnswer;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 
 /**
@@ -16,9 +17,9 @@ public class AnswerTemplate<T> {
 
     final private T result;
 
-    final private UserException error;
+    final private ErrorResponseAnswer error;
 
-    public AnswerTemplate(T result, UserException error) {
+    public AnswerTemplate(T result, ErrorResponseAnswer error) {
         this.result = result;
         this.error = error;
     }
@@ -27,7 +28,7 @@ public class AnswerTemplate<T> {
         return result;
     }
 
-    public UserException getError() {
+    public ErrorResponseAnswer getError() {
         return error;
     }
 }

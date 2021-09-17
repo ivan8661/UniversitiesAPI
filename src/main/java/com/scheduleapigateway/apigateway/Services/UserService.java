@@ -11,6 +11,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionReposi
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
@@ -157,7 +158,7 @@ public class UserService {
             return user;
     }
 
-    public AppUser authUserService(String authData, String universityId) throws UserException {
+    public AppUser authUserService(String authData, String universityId) throws UserException, ServiceException {
 
         JSONObject authJson = new JSONObject(authData);
 
@@ -191,7 +192,7 @@ public class UserService {
         String userInfo;
         try {
             userInfo = new ServiceRequest().request(application,"auth", String.class);
-        } catch (RestClientException e) {
+        } catch (RestClientException | ServiceException e) {
             throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect login or password");
         }
 
@@ -213,7 +214,7 @@ public class UserService {
 
     }
 
-    public AppUser updateUser(String sessionId, String params) throws UserException {
+    public AppUser updateUser(String sessionId, String params) throws UserException, ServiceException {
         JSONObject paramsJson = new JSONObject(params);
 
         AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
@@ -272,7 +273,7 @@ public class UserService {
         return setUserObjects(user);
     }
 
-    public void mergeUserToUser(AppUser recipient, AppUser contributor) throws UserException {
+    public void mergeUserToUser(AppUser recipient, AppUser contributor) throws UserException, ServiceException {
         if(recipient.getUniversityId() == null)
             recipient.setUniversityId(contributor.getUniversityId());
         if(recipient.getScheduleUserId() == null)
@@ -299,7 +300,7 @@ public class UserService {
         userRepository.save(recipient);
     }
 
-    public void boundingServiceToUser(AppUser recipient, AppUser contributor) throws UserException {
+    public void boundingServiceToUser(AppUser recipient, AppUser contributor) throws UserException, ServiceException {
 
         if(recipient.getUniversityId() == null)
             recipient.setUniversityId(contributor.getUniversityId());
