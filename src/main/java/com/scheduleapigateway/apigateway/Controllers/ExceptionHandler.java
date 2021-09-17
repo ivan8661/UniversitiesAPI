@@ -42,55 +42,30 @@ public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler(NoHandlerFoundException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleFoundException(NoHandlerFoundException exception) {
         SchedCoreApplication.getLogger().error("No Handler [" + exception.getHttpMethod() + "] " + exception.getRequestURL() + "\n Message: " + exception.getMessage());
-        // Костыль чтоб не словить пустой ответ из-за ошибки сериализации
-        HashMap<String, Object> debugInfo = new HashMap<>();
-        debugInfo.put("message", exception.getMessage());
-        debugInfo.put("stackTrace", exception.getStackTrace());
-
-        UserException ex = new UserException(UserExceptionType.ENDPOINT_NOT_FOUND, debugInfo);
-        return handleUserException(ex);
+        return handleUserException(new UserException(UserExceptionType.ENDPOINT_NOT_FOUND, exception));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(ServerErrorException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleInternalErrorException(ServerErrorException exception) {
         SchedCoreApplication.getLogger().error("ServerError: \n   Method: " + exception.getHandlerMethod() + "\n   Message: " + exception.getMessage());
-        // Костыль чтоб не словить пустой ответ из-за ошибки сериализации
-        HashMap<String, Object> debugInfo = new HashMap<>();
-        debugInfo.put("message", exception.getMessage());
-        debugInfo.put("stackTrace", exception.getStackTrace());
-
-        UserException ex = new UserException(UserExceptionType.SERVER_ERROR, debugInfo);
-        return handleUserException(ex);
+        return handleUserException(new UserException(UserExceptionType.SERVER_ERROR, exception));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NoSuchFieldException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleNoSuchFieldException(NoSuchFieldException exception) {
-        UserException ex = new UserException(UserExceptionType.OBJECT_NOT_FOUND, exception);
-        return handleUserException(ex);
+        return handleUserException(new UserException(UserExceptionType.OBJECT_NOT_FOUND, exception));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(HttpClientErrorException.BadRequest.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleBadRequestException(HttpClientErrorException exception) {
-        // Костыль чтоб не словить пустой ответ из-за ошибки сериализации
-        HashMap<String, Object> debugInfo = new HashMap<>();
-        debugInfo.put("message", exception.getMessage());
-        debugInfo.put("stackTrace", exception.getStackTrace());
-
-        UserException ex = new UserException(UserExceptionType.VALIDATION_ERROR, debugInfo);
-        return handleUserException(ex);
+        return handleUserException(new UserException(UserExceptionType.VALIDATION_ERROR, exception));
     }
 
 
 
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleOtherException(Exception exception) {
-        // Костыль чтоб не словить пустой ответ из-за ошибки сериализации
-        HashMap<String, Object> debugInfo = new HashMap<>();
-        debugInfo.put("message", exception.getMessage());
-        debugInfo.put("stackTrace", exception.getStackTrace());
-
-        UserException ex = new UserException(UserExceptionType.SERVER_ERROR, debugInfo);
-        return handleUserException(ex);
+        return handleUserException(new UserException(UserExceptionType.SERVER_ERROR, exception));
     }
 }
 
