@@ -27,12 +27,11 @@ public class SchedCoreApplication {
 
 
 
-    static final Logger log =
-            LoggerFactory.getLogger(SchedCoreApplication.class);
+    static final Logger log = LoggerFactory.getLogger(SchedCoreApplication.class);
 
-        public static Logger getLogger() {
-            return log;
-        }
+    public static Logger getLogger() {
+        return log;
+    }
 
 
     public static void main(String[] args) throws IOException {

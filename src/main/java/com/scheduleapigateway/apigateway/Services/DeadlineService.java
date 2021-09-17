@@ -14,8 +14,10 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.DeadlineRepositor
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
+import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +52,10 @@ public class DeadlineService {
         String subjectId = deadline.getSubjectId();
         String universityId = deadline.getUniversityId();
         if (subjectId != null && universityId != null) {
-            Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
-            deadline.setSubject(deadlineSubject);
+            try {
+                Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
+                deadline.setSubject(deadlineSubject);
+            }catch (UserException e) {}
         }
 
         return deadline;
@@ -135,7 +139,7 @@ public class DeadlineService {
                                                 deadline.setSubjectId(subjectId);
                                                 AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
                                                 if(appUser.getUniversityId() != null)
-                                                 deadline.setUniversityId(appUser.getUniversityId());
+                                                    deadline.setUniversityId(appUser.getUniversityId());
                                             } else {
                                                 deadline.setSubjectId(null);
                                             }
@@ -159,15 +163,13 @@ public class DeadlineService {
             return null;
         }
 
-        ResponseEntity<Subject> subjectResponseEntity;
+        Subject subjectResponseEntity;
         try {
-            subjectResponseEntity = new RestTemplate().exchange(
-                    application.getInstances().get(0).getHomePageUrl() + "subjects/" + subjectId,
-                    HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
-        } catch (RestClientException e) {
+            subjectResponseEntity = new ServiceRequest().get(application,"subjects/" + subjectId, Subject.class);
+        } catch (RestClientException | ServiceException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
         }
-        return subjectResponseEntity.getBody();
+        return subjectResponseEntity;
     }
 
     private List<Deadline> getSubjectListFromService(List<Deadline> deadlines) throws UserException {
@@ -194,25 +196,20 @@ public class DeadlineService {
 
             HttpEntity httpEntity = new HttpEntity(tmpSet, new HttpHeaders());
 
-            ResponseEntity<List<Subject>> subjectResponseEntity;
+            List<Subject> subjects = new ArrayList<>();
             try {
-                subjectResponseEntity = new RestTemplate().exchange(
-                        application.getInstances().get(0).getHomePageUrl() + "subjects",
-                        HttpMethod.POST, httpEntity, new ParameterizedTypeReference<>() {});
-            } catch (RestClientException e) {
-                throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "subject not found");
-            }
+                subjects = new ServiceRequest().get(application, "subjects", new ParameterizedTypeReference<>() {});
+            } catch (RestClientException | UserException | ServiceException e) { }
 
-            List<Subject> subjects = subjectResponseEntity.getBody();
 
-            if(subjects!=null)
-            for(Subject subject : subjects){
-                for(Deadline deadline : deadlines){
-                    if(deadline.getSubjectId() != null && subject.getId().equals(deadline.getSubjectId())){
-                        deadline.setSubject(subject);
+            if(subjects != null)
+                for(Subject subject : subjects){
+                    for(Deadline deadline : deadlines){
+                        if(deadline.getSubjectId() != null && subject.getId().equals(deadline.getSubjectId())){
+                            deadline.setSubject(subject);
+                        }
                     }
                 }
-            }
         }
         return deadlines;
     }

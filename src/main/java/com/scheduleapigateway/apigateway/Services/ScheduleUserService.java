@@ -4,8 +4,10 @@ import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
+import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,19 +62,19 @@ public class ScheduleUserService {
         return new ScheduleUser(scheduleUserJson.optString("id"), scheduleUserJson.optString("name"), university);
     }
 
-    public ListAnswer<ScheduleUser> getScheduleUsers(String universityId, String params, ScheduleUser.Type scheduleType) throws UserException {
+    public ListAnswer<ScheduleUser> getScheduleUsers(String universityId, String params, ScheduleUser.Type scheduleType) throws UserException, ServiceException {
         Application application = eurekaInstance.getApplication(universityId);
-        ResponseEntity<String> entity;
+
+        String entity;
         try {
-            String url = application.getInstances().get(0).getHomePageUrl() + scheduleType.rawValue() + "?" + params;
-            entity = new RestTemplate().exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
+            entity = new ServiceRequest().get(application, scheduleType.rawValue() + "?" + params, String.class);
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
 
         LinkedList<ScheduleUser> scheduleUsers = new LinkedList<>();
 
-        JSONObject serviceResponse = new JSONObject(entity.getBody());
+        JSONObject serviceResponse = new JSONObject(entity);
         JSONArray scheduleUserArray = serviceResponse.optJSONArray("items");
         int totalCount = serviceResponse.optInt("totalCount", scheduleUserArray.length());
 

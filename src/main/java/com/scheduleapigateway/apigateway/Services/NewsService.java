@@ -6,11 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Entities.NewsSource;
+import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Entities.VK.*;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
+import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -151,7 +154,7 @@ public class NewsService {
         return null;
     }
 
-    public void setFeedSources(AppUser appUser, String universityId) throws UserException {
+    public void setFeedSources(AppUser appUser, String universityId) throws UserException, ServiceException {
         appUser.setNews(getUniversityNewsList(universityId));
     }
 
@@ -168,17 +171,15 @@ public class NewsService {
         return feedSources;
     }
 
-    private String getUniversityNewsList(String universityId) throws UserException {
+    private String getUniversityNewsList(String universityId) throws UserException, ServiceException {
         Application application = eurekaInstance.getApplication(universityId);
-        ResponseEntity<String> newsSources;
+        String newsSources;
         try {
-            newsSources = new RestTemplate().exchange(
-                    application.getInstances().get(0).getHomePageUrl() + "newsSources/",
-                    HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
+            newsSources = new ServiceRequest().get(application,"newsSources/", String.class);
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
-        return newsSources.getBody();
+        return newsSources;
     }
 
 
@@ -192,7 +193,7 @@ public class NewsService {
     }
 
     private String getImageFromVKPost(List<Attachment> attachments) {
-        if(attachments==null){
+        if(attachments == null){
             return null;
         }
         for (Attachment attachment : attachments) {

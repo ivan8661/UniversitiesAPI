@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.http.HttpStatus;
 
+import java.util.HashMap;
+
 @JsonIgnoreProperties({"httpStatus", "stackTrace", "localizedMessage", "suppressed", "cause", "type"})
-public class UserException extends Exception {
+public class UserException extends Exception implements ErrorResponseAnswer {
 
     @JsonIgnore
     private UserExceptionType type;
@@ -31,6 +33,17 @@ public class UserException extends Exception {
         this.data = data;
     }
 
+    // Костыль чтоб не словить пустой ответ из-за ошибки сериализации
+    public UserException(UserExceptionType type, Exception exception) {
+        this.type = type;
+        this.message = exception.getLocalizedMessage();
+        HashMap<String, Object> debugInfo = new HashMap<>();
+        debugInfo.put("message", exception.getMessage());
+        debugInfo.put("stackTrace", exception.getStackTrace());
+        debugInfo.put("class", exception.getClass().toString());
+        this.data = debugInfo;
+    }
+
     public UserException(UserExceptionType type) {
         this.type = type;
         this.message = type.getDefaultMessage();
@@ -51,7 +64,11 @@ public class UserException extends Exception {
 
     @Override
     public String getMessage() {
-        return message;
+        if ( message != null && !message.isEmpty()) {
+            return message;
+        } else {
+            return type.getDefaultMessage();
+        }
     }
 
     public HttpStatus getHttpStatus() {
