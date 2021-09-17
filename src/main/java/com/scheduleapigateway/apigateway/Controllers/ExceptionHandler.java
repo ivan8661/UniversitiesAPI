@@ -1,5 +1,6 @@
 package com.scheduleapigateway.apigateway.Controllers;
 
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
@@ -30,6 +31,11 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(UserException.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleUserException(UserException ex) {
+        return new ResponseEntity<>(new AnswerTemplate<>(null, ex), ex.getHttpStatus());
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(ServiceException.class)
+    protected ResponseEntity<AnswerTemplate<Object>> handleServiceException(ServiceException ex) {
         return new ResponseEntity<>(new AnswerTemplate<>(null, ex), ex.getHttpStatus());
     }
 
@@ -73,6 +79,8 @@ public class ExceptionHandler {
         UserException ex = new UserException(UserExceptionType.VALIDATION_ERROR, debugInfo);
         return handleUserException(ex);
     }
+
+
 
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
     protected ResponseEntity<AnswerTemplate<Object>> handleOtherException(Exception exception) {
