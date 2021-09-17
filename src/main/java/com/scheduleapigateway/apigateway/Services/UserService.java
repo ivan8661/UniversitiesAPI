@@ -11,6 +11,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionReposi
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
 import com.scheduleapigateway.apigateway.Entities.University;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
@@ -157,7 +158,7 @@ public class UserService {
             return user;
     }
 
-    public AppUser authUserService(String authData, String universityId) throws UserException {
+    public AppUser authUserService(String authData, String universityId) throws UserException, ServiceException {
 
         JSONObject authJson = new JSONObject(authData);
 
@@ -170,14 +171,24 @@ public class UserService {
         AppUser user = getUserFromService(universityId, login, password);
         newsService.setFeedSources(user, universityId);
         if(userRepository.findByLogin(user.getLogin())!=null){
-            return setUserObjects(userRepository.findByLogin(user.getLogin()));
+            try {
+                user = setUserObjects(userRepository.findByLogin(user.getLogin()));
+            } catch (UserException e) {
+                if( e.getId() != 404) throw e;
+            }
         } else {
             userRepository.save(user);
-            return setUserObjects(user);
-        }
+            try {
+                user = setUserObjects(userRepository.findByLogin(user.getLogin()));
+            } catch (UserException e) {
+                if( e.getId() != 404) throw e;
+            }
         }
 
-    private AppUser getUserFromService(String universityId, String login, String password) throws UserException {
+        return user;
+    }
+
+    private AppUser getUserFromService(String universityId, String login, String password) throws UserException, ServiceException {
 
         Application application = eurekaInstance.getApplication(universityId);
         JSONObject body = new JSONObject();
@@ -189,11 +200,9 @@ public class UserService {
         HttpEntity requestEntity = new HttpEntity(body.toString(), httpHeaders);
 
         String userInfo;
-        try {
-            userInfo = new ServiceRequest().request(application,"auth", String.class);
-        } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect login or password");
-        }
+
+        userInfo = new ServiceRequest().post(application,"auth", requestEntity, String.class);
+
 
         JSONObject user = new JSONObject(userInfo);
         String id = user.optString("_id");
@@ -201,7 +210,13 @@ public class UserService {
         String secondName = user.optString("lastname");
         String groupId = user.optString("groupId");
         String groupName = user.optString("groupName");
-        University university = universityService.getUniversity(universityId);
+
+        University university = null;
+        try {
+            university = universityService.getUniversity(universityId);
+        } catch (UserException e) {
+            if( e.getId() != 404 ) throw e;
+        }
 
         ScheduleUser scheduleUser;
         if(id!=null && groupName != null && !id.equals("") && !groupName.equals("")) {
@@ -210,10 +225,9 @@ public class UserService {
             scheduleUser = null;
         }
         return new AppUser(id, login, password, firstName, secondName, universityId, groupId, scheduleUser, university);
-
     }
 
-    public AppUser updateUser(String sessionId, String params) throws UserException {
+    public AppUser updateUser(String sessionId, String params) throws UserException, ServiceException {
         JSONObject paramsJson = new JSONObject(params);
 
         AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
@@ -224,10 +238,10 @@ public class UserService {
 
         for(String key : paramsJson.keySet()){
             switch (key) {
-                case "serviceLogin" -> login = paramsJson.optString("serviceLogin", null);
-                case "servicePassword" -> password = paramsJson.optString("servicePassword", null);
-                case "universityId" -> universityId = paramsJson.optString("universityId", null);
-                case "schedUserId" -> scheduleUserId = paramsJson.optString("schedUserId", null);
+                case "serviceLogin" -> login = paramsJson.optString(key, null);
+                case "servicePassword" -> password = paramsJson.optString(key, null);
+                case "universityId" -> universityId = paramsJson.optString(key, null);
+                case "schedUserId" -> scheduleUserId = paramsJson.optString(key, null);
             }
         }
 
@@ -263,7 +277,7 @@ public class UserService {
                     throw new UserException(UserExceptionType.VALIDATION_ERROR, "password is incorrect");
                 }
             } else {
-                contributor = getUserFromService(universityId, login, password);
+                contributor = getUserFromService(user.getUniversityId(), login, password);
                 boundingServiceToUser(user, contributor);
             }
         }
@@ -272,7 +286,7 @@ public class UserService {
         return setUserObjects(user);
     }
 
-    public void mergeUserToUser(AppUser recipient, AppUser contributor) throws UserException {
+    public void mergeUserToUser(AppUser recipient, AppUser contributor) throws UserException, ServiceException {
         if(recipient.getUniversityId() == null)
             recipient.setUniversityId(contributor.getUniversityId());
         if(recipient.getScheduleUserId() == null)
@@ -299,7 +313,7 @@ public class UserService {
         userRepository.save(recipient);
     }
 
-    public void boundingServiceToUser(AppUser recipient, AppUser contributor) throws UserException {
+    public void boundingServiceToUser(AppUser recipient, AppUser contributor) throws UserException, ServiceException {
 
         if(recipient.getUniversityId() == null)
             recipient.setUniversityId(contributor.getUniversityId());

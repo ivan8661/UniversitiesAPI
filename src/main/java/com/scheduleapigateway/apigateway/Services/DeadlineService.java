@@ -14,6 +14,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.DeadlineRepositor
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
@@ -164,8 +165,8 @@ public class DeadlineService {
 
         Subject subjectResponseEntity;
         try {
-            subjectResponseEntity = new ServiceRequest().request(application,"subjects/" + subjectId, Subject.class);
-        } catch (RestClientException e) {
+            subjectResponseEntity = new ServiceRequest().get(application,"subjects/" + subjectId, Subject.class);
+        } catch (RestClientException | ServiceException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
         }
         return subjectResponseEntity;
@@ -197,19 +198,18 @@ public class DeadlineService {
 
             List<Subject> subjects = new ArrayList<>();
             try {
-                subjects = new ServiceRequest().request(application,"subjects", new ParameterizedTypeReference<>(){} );
-            } catch (RestClientException e) { }
-            catch (UserException e) {}
+                subjects = new ServiceRequest().get(application, "subjects", new ParameterizedTypeReference<>() {});
+            } catch (RestClientException | UserException | ServiceException e) { }
 
 
-            if(subjects!=null)
-            for(Subject subject : subjects){
-                for(Deadline deadline : deadlines){
-                    if(deadline.getSubjectId() != null && subject.getId().equals(deadline.getSubjectId())){
-                        deadline.setSubject(subject);
+            if(subjects != null)
+                for(Subject subject : subjects){
+                    for(Deadline deadline : deadlines){
+                        if(deadline.getSubjectId() != null && subject.getId().equals(deadline.getSubjectId())){
+                            deadline.setSubject(subject);
+                        }
                     }
                 }
-            }
         }
         return deadlines;
     }
