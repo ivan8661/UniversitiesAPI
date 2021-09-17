@@ -35,20 +35,61 @@ public class ServiceRequest {
         });
     }
 
-    public <T> T request(Application service, String endpoint, Class<T> responseType) throws RestClientException, UserException, ServiceException {
+    public <T> T get(Application service, String endpoint, HttpEntity params, ParameterizedTypeReference<T> responseType) throws RestClientException, UserException, ServiceException {
+        return request(service, endpoint, responseType, HttpMethod.GET, params);
+    }
+
+    public <T> T post(Application service, String endpoint, HttpEntity params, ParameterizedTypeReference<T> responseType) throws RestClientException, UserException, ServiceException {
+        return request(service, endpoint, responseType, HttpMethod.POST, params);
+    }
+
+    public <T> T get(Application service, String endpoint, ParameterizedTypeReference<T> responseType) throws RestClientException, UserException, ServiceException {
+        return get(service, endpoint, HttpEntity.EMPTY, responseType);
+    }
+
+    public <T> T post(Application service, String endpoint, ParameterizedTypeReference<T> responseType) throws RestClientException, UserException, ServiceException {
+        return post(service, endpoint, HttpEntity.EMPTY, responseType);
+    }
+
+
+
+    public <T> T get(Application service, String endpoint, HttpEntity params, Class<T> responseType) throws RestClientException, UserException, ServiceException {
+        return request(service, endpoint, responseType, HttpMethod.GET, params);
+    }
+
+    public <T> T post(Application service, String endpoint, HttpEntity params, Class<T> responseType) throws RestClientException, UserException, ServiceException {
+        return request(service, endpoint, responseType, HttpMethod.POST, params);
+    }
+
+    public <T> T get(Application service, String endpoint, Class<T> responseType) throws RestClientException, UserException, ServiceException {
+        return get(service, endpoint, HttpEntity.EMPTY, responseType);
+    }
+
+    public <T> T post(Application service, String endpoint, Class<T> responseType) throws RestClientException, UserException, ServiceException {
+        return post(service, endpoint, HttpEntity.EMPTY, responseType);
+    }
+
+
+    public <T> T request(Application service, String endpoint, ParameterizedTypeReference<T> responseType, HttpMethod httpMethod, HttpEntity<?> params) throws RestClientException, UserException, ServiceException {
+
         String baseURL = service.getInstances().get(0).getHomePageUrl();
         String url = baseURL + endpoint;
+        SchedCoreApplication.getLogger().info("[" + service.getName() + "] "+httpMethod.name()+": " + url);
 
-        ResponseEntity<T> responseEntity = restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY,  responseType);
+        responseType.getType();
+
+        ResponseEntity<T> responseEntity = restTemplate.exchange(url, httpMethod, params,  responseType);
+
         return handleResponse(service, responseEntity);
     }
 
-    public <T> T request(Application service, String endpoint, ParameterizedTypeReference<T> responseType) throws RestClientException, UserException, ServiceException {
+    public <T> T request(Application service, String endpoint, Class responseType, HttpMethod httpMethod, HttpEntity<?> params) throws RestClientException, UserException, ServiceException {
+
         String baseURL = service.getInstances().get(0).getHomePageUrl();
         String url = baseURL + endpoint;
-        SchedCoreApplication.getLogger().info("[" + service.getName() + "] GET: " + url);
+        SchedCoreApplication.getLogger().info("[" + service.getName() + "] "+httpMethod.name()+": " + url);
 
-        ResponseEntity<T> responseEntity = restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY,  responseType);
+        ResponseEntity<T> responseEntity = restTemplate.exchange(url, httpMethod, params,  responseType);
 
         return handleResponse(service, responseEntity);
     }

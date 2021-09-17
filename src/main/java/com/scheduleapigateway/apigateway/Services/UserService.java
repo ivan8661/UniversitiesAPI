@@ -176,9 +176,9 @@ public class UserService {
             userRepository.save(user);
             return setUserObjects(user);
         }
-        }
+    }
 
-    private AppUser getUserFromService(String universityId, String login, String password) throws UserException {
+    private AppUser getUserFromService(String universityId, String login, String password) throws UserException, ServiceException {
 
         Application application = eurekaInstance.getApplication(universityId);
         JSONObject body = new JSONObject();
@@ -191,9 +191,9 @@ public class UserService {
 
         String userInfo;
         try {
-            userInfo = new ServiceRequest().request(application,"auth", String.class);
-        } catch (RestClientException | ServiceException e) {
-            throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect login or password");
+            userInfo = new ServiceRequest().post(application,"auth", requestEntity, String.class);
+        } catch (RestClientException e) {
+            throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect login or password", e.getMessage());
         }
 
         JSONObject user = new JSONObject(userInfo);
@@ -211,7 +211,6 @@ public class UserService {
             scheduleUser = null;
         }
         return new AppUser(id, login, password, firstName, secondName, universityId, groupId, scheduleUser, university);
-
     }
 
     public AppUser updateUser(String sessionId, String params) throws UserException, ServiceException {
@@ -225,10 +224,10 @@ public class UserService {
 
         for(String key : paramsJson.keySet()){
             switch (key) {
-                case "serviceLogin" -> login = paramsJson.optString("serviceLogin", null);
-                case "servicePassword" -> password = paramsJson.optString("servicePassword", null);
-                case "universityId" -> universityId = paramsJson.optString("universityId", null);
-                case "schedUserId" -> scheduleUserId = paramsJson.optString("schedUserId", null);
+                case "serviceLogin" -> login = paramsJson.optString(key, null);
+                case "servicePassword" -> password = paramsJson.optString(key, null);
+                case "universityId" -> universityId = paramsJson.optString(key, null);
+                case "schedUserId" -> scheduleUserId = paramsJson.optString(key, null);
             }
         }
 
@@ -264,7 +263,7 @@ public class UserService {
                     throw new UserException(UserExceptionType.VALIDATION_ERROR, "password is incorrect");
                 }
             } else {
-                contributor = getUserFromService(universityId, login, password);
+                contributor = getUserFromService(user.getUniversityId(), login, password);
                 boundingServiceToUser(user, contributor);
             }
         }

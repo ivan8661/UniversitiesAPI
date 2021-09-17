@@ -30,7 +30,6 @@ public class EurekaInstance {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "DISCOVERY_SERVICE_NOT_FOUND");
         }
         List<Application> applicationList = eurekaClient.getApplications().getRegisteredApplications();
-        applicationList.removeIf(x -> !x.getInstances().get(0).getAppName().contains(universityId));
 
         for(Application a: applicationList) {
             if(a.getInstances().get(0).getAppName().contains(universityId)) return a;

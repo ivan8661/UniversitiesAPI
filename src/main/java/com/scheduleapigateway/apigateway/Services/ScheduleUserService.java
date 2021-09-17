@@ -67,7 +67,7 @@ public class ScheduleUserService {
 
         String entity;
         try {
-            entity = new ServiceRequest().request(application, scheduleType.rawValue() + "?" + params, String.class);
+            entity = new ServiceRequest().get(application, scheduleType.rawValue() + "?" + params, String.class);
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }

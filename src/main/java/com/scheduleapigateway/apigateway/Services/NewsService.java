@@ -175,7 +175,7 @@ public class NewsService {
         Application application = eurekaInstance.getApplication(universityId);
         String newsSources;
         try {
-            newsSources = new ServiceRequest().request(application,"newsSources/", String.class);
+            newsSources = new ServiceRequest().get(application,"newsSources/", String.class);
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }

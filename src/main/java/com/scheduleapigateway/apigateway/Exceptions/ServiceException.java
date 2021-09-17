@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 
+import java.util.Optional;
+
 @JsonIgnoreProperties({"httpStatus", "stackTrace", "localizedMessage", "suppressed", "cause", "type"})
 public class ServiceException extends Exception implements ErrorResponseAnswer {
 
@@ -16,7 +18,8 @@ public class ServiceException extends Exception implements ErrorResponseAnswer {
         this.status = status;
         code = object.optString("code");
         message = object.optString("message");
-        data = object.optJSONObject("data").toString();
+        if( object.optJSONObject("data") != null )
+            data = object.optJSONObject("data").toString();
     }
 
     @Override
