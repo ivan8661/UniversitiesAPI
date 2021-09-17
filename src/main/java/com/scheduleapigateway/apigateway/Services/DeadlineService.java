@@ -198,7 +198,7 @@ public class DeadlineService {
 
             List<Subject> subjects = new ArrayList<>();
             try {
-                subjects = new ServiceRequest().get(application, "subjects", new ParameterizedTypeReference<>() {});
+                subjects = new ServiceRequest().post(application, "subjects", httpEntity, new ParameterizedTypeReference<>() {});
             } catch (RestClientException | UserException | ServiceException e) { }
 
 
