@@ -14,6 +14,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.lang.NonNullApi;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -28,10 +29,10 @@ public class ServiceRequest {
     public ServiceRequest() {
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
             @Override
-            public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException { return false; }
+            public boolean hasError(ClientHttpResponse clientHttpResponse) { return false; }
 
             @Override
-            public void handleError(ClientHttpResponse clientHttpResponse) throws IOException { }
+            public void handleError(ClientHttpResponse clientHttpResponse) { }
         });
     }
 
@@ -74,7 +75,9 @@ public class ServiceRequest {
 
         String baseURL = service.getInstances().get(0).getHomePageUrl();
         String url = baseURL + endpoint;
-        SchedCoreApplication.getLogger().info("[" + service.getName() + "] "+httpMethod.name()+": " + url);
+        SchedCoreApplication.getLogger().info("[" + service.getName() + "] "+httpMethod.name()+": " + url +
+                "\n HEADERS: \n" + params.getHeaders() +
+                "\n Body: \n" + params.getBody());
 
         responseType.getType();
 
@@ -83,22 +86,24 @@ public class ServiceRequest {
         return handleResponse(service, responseEntity);
     }
 
-    public <T> T request(Application service, String endpoint, Class responseType, HttpMethod httpMethod, HttpEntity<?> params) throws RestClientException, UserException, ServiceException {
+    public <T> T request(Application service, String endpoint, Class<T> responseType, HttpMethod httpMethod, HttpEntity<?> params) throws RestClientException, UserException, ServiceException {
 
         String baseURL = service.getInstances().get(0).getHomePageUrl();
         String url = baseURL + endpoint;
-        SchedCoreApplication.getLogger().info("[" + service.getName() + "] "+httpMethod.name()+": " + url);
+        SchedCoreApplication.getLogger().info("[" + service.getName() + "] "+httpMethod.name()+": " + url +
+                "\n HEADERS: \n" + params.getHeaders() +
+                "\n Body: \n" + params.getBody());
 
         ResponseEntity<T> responseEntity = restTemplate.exchange(url, httpMethod, params,  responseType);
 
         return handleResponse(service, responseEntity);
     }
 
-    private <T> T handleResponse(Application service, ResponseEntity<T> responseEntity) throws UserException, ServiceException {
+    private <T> T handleResponse(Application service, ResponseEntity<T> responseEntity) throws ServiceException {
         String logMessage = "[" + service.getName() + "] Response: \n" +
                 responseEntity.getStatusCode() +
                 "\nHEADERS:\n" + responseEntity.getHeaders() +
-                "\nBody:\n" + responseEntity.getBody().toString();
+                "\nBody:\n" + responseEntity.getBody();
 
 
         if( !responseEntity.getStatusCode().is2xxSuccessful() ) {
@@ -113,7 +118,7 @@ public class ServiceRequest {
 
 
     private Map<String, Object> toMap(JSONObject object) throws JSONException {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap();
 
         if(object == null) {
             return map;
@@ -137,7 +142,7 @@ public class ServiceRequest {
     }
 
     private List<Object> toList(JSONArray array) throws JSONException {
-        List<Object> list = new ArrayList<Object>();
+        List<Object> list = new ArrayList();
         for(int i = 0; i < array.length(); i++) {
             Object value = array.get(i);
             if(value instanceof JSONArray) {
