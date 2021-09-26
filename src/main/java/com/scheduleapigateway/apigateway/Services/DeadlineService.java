@@ -5,7 +5,6 @@ import GetGraphQL.Filter;
 import GetGraphQL.QueryOperator;
 import GetGraphQL.QueryParametersBuilder;
 import com.netflix.discovery.shared.Application;
-import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
@@ -15,7 +14,6 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.DeadlineRepositor
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
-import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
@@ -28,11 +26,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import reactor.util.annotation.NonNull;
 
 import java.util.*;
@@ -49,21 +44,50 @@ public class DeadlineService {
     @Autowired
     private EurekaInstance eurekaInstance;
 
-    public Deadline getDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
-        Deadline deadline = checkForExist(deadlineId);
+    public Deadline getDeadline(@NonNull String sessionId, String deadlineId) throws UserException, ServiceException {
 
-        String subjectId = deadline.getSubjectId();
-        String universityId = deadline.getUniversityId();
-        if (subjectId != null && universityId != null) {
-            try {
-                Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
-                deadline.setSubject(deadlineSubject);
-            } catch (UserException e) {
-                SchedCoreApplication.getLogger().error(e.toString());
+        Optional<Deadline> optionalDeadline = deadlineRepository.findById(deadlineId);
+        if(!optionalDeadline.isEmpty()){
+            Deadline deadline = optionalDeadline.get();
+
+            String subjectId = deadline.getSubjectId();
+            String universityId = deadline.getUniversityId();
+            if (subjectId != null && universityId != null) {
+                try {
+                    Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
+                    deadline.setSubject(deadlineSubject);
+                } catch (UserException e) {
+                    SchedCoreApplication.getLogger().error(e.toString());
+                }
             }
+
+            return deadline;
+        } else {
+            return getExternalDeadline(sessionId, deadlineId);
         }
 
-        return deadline;
+    }
+
+    private Deadline getExternalDeadline(@NonNull String sessionId, String deadlineId) throws UserException, ServiceException {
+        UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
+        AppUser user = userSession.getUser();
+
+        Application application;
+        try {
+            application = eurekaInstance.getApplication(user.getUniversityId());
+        } catch (UserException | NullPointerException e) {
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND);
+        }
+
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", user.getExternalId());
+        params.put("cookie", user.getCookieUser());
+        HttpEntity httpEntity = new HttpEntity(params);
+
+
+        return new ServiceRequest().post(application, "deadline/"+ deadlineId, httpEntity, Deadline.class);
+
     }
 
     public Deadline deleteDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
@@ -72,10 +96,16 @@ public class DeadlineService {
         return deadline;
     }
 
-    public ListAnswer<Deadline> getDeadlinesWithFilters(@NonNull String sessionId, Map<String, String> params) throws NoSuchFieldException, UserException {
+    public ListAnswer<Deadline> getDeadlinesWithFilters(@NonNull String sessionId, Map<String, String> params) throws NoSuchFieldException, UserException, ServiceException {
 
         UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
         AppUser user = userSession.getUser();
+
+        if(params.containsKey("externalSource") ) {
+            return getExternalDeadlines(user, params.get("externalSource"));
+        }
+
+
         Filter userFilter = new Filter.Builder()
                 .field("user")
                 .operator(QueryOperator.EQUALS)
@@ -88,6 +118,25 @@ public class DeadlineService {
         List<Deadline> deadlines = page.getContent();
         getSubjectListFromService(deadlines);
         return new ListAnswer<>(deadlines, page.getTotalElements());
+    }
+
+    private ListAnswer<Deadline> getExternalDeadlines(AppUser user, String sourceId) throws ServiceException, UserException {
+        Application application;
+        try {
+            application = eurekaInstance.getApplication(user.getUniversityId());
+        } catch (UserException | NullPointerException e) {
+            return ListAnswer.EMPTY;
+        }
+
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", user.getExternalId());
+        params.put("cookie", user.getCookieUser());
+        params.put("sourceId", sourceId);
+        HttpEntity httpEntity = new HttpEntity(params);
+
+
+        return new ServiceRequest().post(application, "deadlines", httpEntity, new ParameterizedTypeReference<>() {});
     }
 
     public Deadline createDeadline(@NonNull String sessionId, String bodyDeadline) throws UserException {

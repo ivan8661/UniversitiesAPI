@@ -75,7 +75,7 @@ public class DeadlineController {
     @SessionRequired
     @GetMapping(path="/deadlines/{deadlineId}")
     public ResponseEntity<AnswerTemplate<Deadline>> getSingleDeadline(@RequestHeader HttpHeaders httpHeaders,
-                                                                      @PathVariable ("deadlineId") String deadlineId) throws UserException {
+                                                                      @PathVariable ("deadlineId") String deadlineId) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.getDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
     }
 
@@ -97,7 +97,7 @@ public class DeadlineController {
     @SessionRequired
     @GetMapping(path="/deadlines")
     public ResponseEntity<AnswerTemplate<ListAnswer<Deadline>>> getOwnDeadlineWithName(@RequestHeader HttpHeaders httpHeaders,
-                                                                                       @RequestParam Map<String, String> params) throws UserException, NoSuchFieldException {
+                                                                                       @RequestParam Map<String, String> params) throws UserException, NoSuchFieldException, ServiceException {
         String sessionId = httpHeaders.getFirst("X-Session-Id");
         return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.getDeadlinesWithFilters(sessionId, params), null));
     }
