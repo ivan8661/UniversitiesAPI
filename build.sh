@@ -14,12 +14,13 @@ buildVersion="$buildBranch.$buildNumber"
 
 mvn -Dmaven.test.skip=true clean package
 
-echo Y | docker image prune -a
+echo Y | docker image prune
 docker build -t $imageName:latest \
              -t $imageName:$buildVersion .
 mkdir -p ./$exportDirectory
-
 echo Y | docker image prune
+
+docker push
 docker save -o ./$exportDirectory/image.tar $dockerRegistry/$projectName/$moduleName
 cp ./docker-compose.yml ./$exportDirectory/docker-compose.yml
 
