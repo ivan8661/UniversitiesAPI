@@ -170,14 +170,14 @@ public class UserService {
         }
         AppUser user = getUserFromService(universityId, login, password);
         newsService.setFeedSources(user, universityId);
-        if(userRepository.findByLogin(user.getLogin())!=null){
+
+        if(userRepository.findByLogin(user.getLogin()) != null){
             try {
                 user = setUserObjects(userRepository.findByLogin(user.getLogin()));
             } catch (UserException e) {
                 if( e.getId() != 404) throw e;
             }
         } else {
-            userRepository.save(user);
             try {
                 user = setUserObjects(userRepository.findByLogin(user.getLogin()));
             } catch (UserException e) {
@@ -202,14 +202,14 @@ public class UserService {
         String userInfo;
 
         userInfo = new ServiceRequest().post(application,"auth", requestEntity, String.class);
-
-
         JSONObject user = new JSONObject(userInfo);
         String id = user.optString("_id");
         String firstName = user.optString("firstname");
         String secondName = user.optString("lastname");
         String groupId = user.optString("groupId");
         String groupName = user.optString("groupName");
+        String cookie = user.optString("cookie");
+        String externalId = user.optString("externalId");
 
         University university = null;
         try {
@@ -219,12 +219,17 @@ public class UserService {
         }
 
         ScheduleUser scheduleUser;
-        if(id!=null && groupName != null && !id.equals("") && !groupName.equals("")) {
+        if(id != null && groupName != null && !id.equals("") && !groupName.equals("")) {
             scheduleUser = new ScheduleUser(id, groupName, university);
         } else {
             scheduleUser = null;
         }
-        return new AppUser(id, login, password, firstName, secondName, universityId, groupId, scheduleUser, university);
+
+        AppUser appUser = new AppUser(id, login, password, firstName, secondName, universityId, groupId, scheduleUser, university);
+        appUser.setCookieUser(cookie);
+        appUser.setExternalId(externalId);
+        userRepository.save(appUser);
+        return  appUser;
     }
 
     public AppUser updateUser(String sessionId, String params) throws UserException, ServiceException {
