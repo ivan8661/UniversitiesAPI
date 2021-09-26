@@ -36,4 +36,12 @@ public class ListAnswer<T> {
     }
 
     public static ListAnswer EMPTY = new ListAnswer(new ArrayList(), 0);
+
+    @Override
+    public String toString() {
+        return "ListAnswer{" +
+                "totalCount=" + totalCount +
+                "listAnswer=" + listAnswer +
+                '}';
+    }
 }
