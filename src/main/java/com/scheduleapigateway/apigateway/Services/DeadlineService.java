@@ -131,29 +131,24 @@ public class DeadlineService {
     }
 
 
-    public List<DeadlineSource> getDeadlineSourcesFromService(String sessionId) throws UserException, RestClientException, ServiceException {
+    public ListAnswer<DeadlineSource> getSources(String sessionId) throws UserException, RestClientException, ServiceException {
         AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
-        if(user.getUniversity() == null){
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "university doesn't bound");
-        }
+
         Application application;
         try {
             application = eurekaInstance.getApplication(user.getUniversity().getId());
-        } catch (UserException e) {
-            return null;
+        } catch (UserException | NullPointerException e) {
+            return ListAnswer.EMPTY;
         }
 
-        List<DeadlineSource> deadlineSourceList;
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("userId", user.getId());
-            jsonObject.put("cookie", user.getCookieUser());
-            HttpEntity httpEntity = new HttpEntity(jsonObject);
-            deadlineSourceList = new ServiceRequest().post(application, "deadlineSources", httpEntity,  List.class);
-        } catch (RestClientException | ServiceException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
-        }
-        return deadlineSourceList;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("userId", user.getId());
+        jsonObject.put("cookie", user.getCookieUser());
+        HttpEntity httpEntity = new HttpEntity(jsonObject);
+
+        return new ServiceRequest().post(application, "deadlineSources", httpEntity, new ParameterizedTypeReference<>() {});
+
     }
 
 
@@ -222,7 +217,7 @@ public class DeadlineService {
                     tmpSet.add(entry.getKey());
                 }
             }
-            List<Subject> subjects;
+            List<Subject> subjects = null;
             try {
                 subjects = new ServiceRequest().post(application, "subjects", httpEntity, new ParameterizedTypeReference<>() {});
             } catch (RestClientException | UserException | ServiceException e) {

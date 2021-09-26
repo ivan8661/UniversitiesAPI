@@ -5,6 +5,8 @@ import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
+import com.scheduleapigateway.apigateway.Entities.DeadlineSource;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Services.DeadlineService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +108,9 @@ public class DeadlineController {
      */
     @SessionRequired
     @GetMapping(path="/deadlines/sources")
-    public ResponseEntity getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer(deadlineService.getSources(httpHeaders.getFirst("X-Session-Id")), 0), null));
+    public ResponseEntity<AnswerTemplate<ListAnswer<DeadlineSource>>> getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) throws ServiceException, UserException {
+        String sessionId = httpHeaders.getFirst("X-Session-Id");
+        ListAnswer sources = deadlineService.getSources(sessionId);
+        return ResponseEntity.ok().body(new AnswerTemplate<>(sources, null));
     }
 }
