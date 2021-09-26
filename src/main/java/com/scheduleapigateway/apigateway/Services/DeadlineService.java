@@ -136,16 +136,17 @@ public class DeadlineService {
 
         Application application;
         try {
-            application = eurekaInstance.getApplication(user.getUniversity().getId());
+            application = eurekaInstance.getApplication(user.getUniversityId());
         } catch (UserException | NullPointerException e) {
             return ListAnswer.EMPTY;
         }
 
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("userId", user.getId());
-        jsonObject.put("cookie", user.getCookieUser());
-        HttpEntity httpEntity = new HttpEntity(jsonObject);
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", user.getExternalId());
+        params.put("cookie", user.getCookieUser());
+        HttpEntity httpEntity = new HttpEntity(params);
+
 
         return new ServiceRequest().post(application, "deadlineSources", httpEntity, new ParameterizedTypeReference<>() {});
 
@@ -217,6 +218,7 @@ public class DeadlineService {
                     tmpSet.add(entry.getKey());
                 }
             }
+            HttpEntity httpEntity = new HttpEntity(tmpSet, new HttpHeaders());
             List<Subject> subjects = null;
             try {
                 subjects = new ServiceRequest().post(application, "subjects", httpEntity, new ParameterizedTypeReference<>() {});
