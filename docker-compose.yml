@@ -2,7 +2,7 @@ version: "3"
 
 services:
   core:
-    image: schedapp/core:latest
+    image: docker.poltorakov.ru/schedapp/core:latest
     restart: on-failure
     environment:
       - SPRING_APPLICATION_NAME=core

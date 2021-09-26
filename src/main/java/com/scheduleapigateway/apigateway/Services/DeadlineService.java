@@ -19,6 +19,7 @@ import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
+import com.scheduleapigateway.apigateway.SchedCoreApplication;
 import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONObject;
@@ -57,7 +58,9 @@ public class DeadlineService {
             try {
                 Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
                 deadline.setSubject(deadlineSubject);
-            }catch (UserException e) {}
+            } catch (UserException e) {
+                SchedCoreApplication.getLogger().error(e.toString());
+            }
         }
 
         return deadline;
@@ -204,10 +207,9 @@ public class DeadlineService {
         Map<String, String> subjectsId = new HashMap<>();
         Set<String> universities = new HashSet<>();
 
-
         for(Deadline deadline : deadlines) {
             if(deadline.getSubjectId() != null && deadline.getUniversityId() != null) {
-                subjectsId.put(deadline.getUniversityId(), deadline.getSubjectId());
+                subjectsId.put(deadline.getSubjectId(), deadline.getUniversityId());
                 universities.add(deadline.getUniversityId());
             }
         }
@@ -216,14 +218,16 @@ public class DeadlineService {
             Set<String> tmpSet = new HashSet<>();
             Application application = eurekaInstance.getApplication(university);
             for(Map.Entry<String, String> entry : subjectsId.entrySet()){
-                if(entry.getKey().equals(university)){
-                    tmpSet.add(entry.getValue());
+                if(entry.getValue().equals(university)){
+                    tmpSet.add(entry.getKey());
                 }
             }
             List<Subject> subjects;
             try {
-                subjects = new ServiceRequest().get(application, "subjects", new ParameterizedTypeReference<>() {});
-            } catch (RestClientException | UserException | ServiceException e) { }
+                subjects = new ServiceRequest().post(application, "subjects", httpEntity, new ParameterizedTypeReference<>() {});
+            } catch (RestClientException | UserException | ServiceException e) {
+                SchedCoreApplication.getLogger().error(e.toString());
+            }
 
 
             if(subjects != null)
