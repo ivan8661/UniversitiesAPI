@@ -20,5 +20,5 @@ public interface UserRepository extends CrudRepository<AppUser, String> {
 
     AppUser findByLogin(String login);
 
-
+    AppUser findByExternalIdAndUniversityId(String externalId, String universityId);
 }

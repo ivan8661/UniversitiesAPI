@@ -10,6 +10,7 @@ import com.scheduleapigateway.apigateway.Entities.Repositories.DeadlineRepositor
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
 import com.scheduleapigateway.apigateway.Entities.ScheduleUser;
+import com.scheduleapigateway.apigateway.Entities.ServiceUser;
 import com.scheduleapigateway.apigateway.Entities.University;
 import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
@@ -17,6 +18,7 @@ import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.SchedCoreApplication;
 import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,8 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import reactor.util.annotation.NonNull;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -158,32 +162,11 @@ public class UserService {
             return user;
     }
 
-    public AppUser authUserService(String authData, String universityId) throws UserException, ServiceException {
-
-        JSONObject authJson = new JSONObject(authData);
-
-        String login = authJson.optString("serviceLogin");
-        String password = authJson.optString("servicePassword");
-
-        if (login == null || password == null) {
-            throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect input data");
-        }
+    public AppUser authUserService(String universityId, @NonNull String login, @NonNull String password) throws UserException, ServiceException {
         AppUser user = getUserFromService(universityId, login, password);
         newsService.setFeedSources(user, universityId);
 
-        if(userRepository.findByLogin(user.getLogin()) != null){
-            try {
-                user = setUserObjects(userRepository.findByLogin(user.getLogin()));
-            } catch (UserException e) {
-                if( e.getId() != 404) throw e;
-            }
-        } else {
-            try {
-                user = setUserObjects(userRepository.findByLogin(user.getLogin()));
-            } catch (UserException e) {
-                if( e.getId() != 404) throw e;
-            }
-        }
+        user = setUserObjects(user);
 
         return user;
     }
@@ -199,37 +182,57 @@ public class UserService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity requestEntity = new HttpEntity(body.toString(), httpHeaders);
 
-        String userInfo;
 
-        userInfo = new ServiceRequest().post(application,"auth", requestEntity, String.class);
-        JSONObject user = new JSONObject(userInfo);
-        String id = user.optString("_id");
-        String firstName = user.optString("firstname");
-        String secondName = user.optString("lastname");
-        String groupId = user.optString("groupId");
-        String groupName = user.optString("groupName");
-        String cookie = user.optString("cookie");
-        String externalId = user.optString("externalId");
+        ServiceUser userInfo = new ServiceRequest().post(application,"auth", requestEntity, ServiceUser.class);
 
-        University university = null;
+        AppUser user = getOrCreateUser(universityId, userInfo.getExternalId());
+        user.setCookieUser(userInfo.getCookie());
+        user.setAvatarURL(userInfo.getAvatar());
+
+        user.setLogin(login);
+        user.setPassword(password);
+
+        if(user.getScheduleUserId() == null) {
+            user.setScheduleUserId(userInfo.getGroupId());
+        }
+
+        if(user.getName() == null) {
+            user.setName(userInfo.getFirstName());
+        }
+
+        if(user.getSecondName() == null) {
+            user.setSecondName(userInfo.getLastName());
+        }
+
+        if(user.getNews() == null || new JSONArray(user.getNews()) == null ) {
+            setNewsToUser(user);
+        }
+
+        userRepository.save(user);
+        return user;
+    }
+
+    private AppUser getOrCreateUser(String universityId, String externalId) {
+        AppUser user = userRepository.findByExternalIdAndUniversityId(externalId, universityId);
+        if(user != null) { return user; }
+
+        user = new AppUser();
+        user.setId(UUID.randomUUID().toString());
+        user.setUniversityId(universityId);
+        user.setExternalId(externalId);
+
+        setNewsToUser(user);
+
+        userRepository.save(user);
+
+        return user;
+    }
+
+    private AppUser setNewsToUser(AppUser user) {
         try {
-            university = universityService.getUniversity(universityId);
-        } catch (UserException e) {
-            if( e.getId() != 404 ) throw e;
-        }
-
-        ScheduleUser scheduleUser;
-        if(id != null && groupName != null && !id.equals("") && !groupName.equals("")) {
-            scheduleUser = new ScheduleUser(id, groupName, university);
-        } else {
-            scheduleUser = null;
-        }
-
-        AppUser appUser = new AppUser(id, login, password, firstName, secondName, universityId, groupId, scheduleUser, university);
-        appUser.setCookieUser(cookie);
-        appUser.setExternalId(externalId);
-        userRepository.save(appUser);
-        return  appUser;
+            newsService.setFeedSources(user, user.getUniversityId());
+        } catch (UserException | ServiceException e) { }
+        return user;
     }
 
     public AppUser updateUser(String sessionId, String params) throws UserException, ServiceException {
@@ -274,7 +277,7 @@ public class UserService {
 
         AppUser contributor;
         if(login != null && password != null && user.getVkId()!=null) {
-            if(userRepository.findByLogin(login)!=null){
+            if(userRepository.findByLogin(login) != null){
                 contributor = userRepository.findByLogin(login);
                 if(contributor.getPassword().equals(password) && contributor.getVkId()==null) {
                     mergeUserToUser(user, userRepository.findByLogin(login));
@@ -332,7 +335,7 @@ public class UserService {
     }
 
 
-    public AppUser setUserObjects(AppUser user) throws UserException {
+    private AppUser setUserObjects(AppUser user) throws UserException {
         if (user.getUniversityId() != null && !user.getUniversityId().isEmpty())
             user.setUniversity(universityService.getUniversity(user.getUniversityId()));
         if (user.getScheduleUserId() != null && !user.getScheduleUserId().isEmpty())
