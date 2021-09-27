@@ -1,5 +1,6 @@
 package com.scheduleapigateway.apigateway.ServiceHelpers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
@@ -79,8 +80,6 @@ public class ServiceRequest {
                 "\n HEADERS: \n" + params.getHeaders() +
                 "\n Body: \n" + params.getBody());
 
-        responseType.getType();
-
         ResponseEntity<T> responseEntity = restTemplate.exchange(url, httpMethod, params,  responseType);
 
         return handleResponse(service, responseEntity);
@@ -108,7 +107,7 @@ public class ServiceRequest {
 
         if( !responseEntity.getStatusCode().is2xxSuccessful() ) {
             SchedCoreApplication.getLogger().error(logMessage);
-            JSONObject body = new JSONObject(responseEntity.getBody().toString());
+            JSONObject body = new JSONObject(responseEntity.toString());
             throw new ServiceException(responseEntity.getStatusCode(), body);
         } else {
             SchedCoreApplication.getLogger().info(logMessage);

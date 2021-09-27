@@ -86,7 +86,7 @@ public class DeadlineService {
         HttpEntity httpEntity = new HttpEntity(params);
 
 
-        return new ServiceRequest().post(application, "deadline/"+ deadlineId, httpEntity, Deadline.class);
+        return new ServiceRequest().post(application, "deadlines/"+ deadlineId, httpEntity, Deadline.class);
 
     }
 
