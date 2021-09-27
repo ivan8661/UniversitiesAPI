@@ -23,12 +23,12 @@ public class AppUser {
 
 
     @Id
-    @Column(name="id")
+    @Column(name="id", unique = true)
     @JsonProperty("_id")
     private String id;
 
 
-    @Column(name="login", unique = true)
+    @Column(name="login")
     @JsonProperty("serviceLogin")
     private String login;
 
