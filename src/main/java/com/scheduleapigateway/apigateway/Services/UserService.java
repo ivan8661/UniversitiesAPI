@@ -182,7 +182,6 @@ public class UserService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity requestEntity = new HttpEntity(body.toString(), httpHeaders);
 
-
         ServiceUser userInfo = new ServiceRequest().post(application,"auth", requestEntity, ServiceUser.class);
 
         AppUser user = getOrCreateUser(universityId, userInfo.getExternalId());
