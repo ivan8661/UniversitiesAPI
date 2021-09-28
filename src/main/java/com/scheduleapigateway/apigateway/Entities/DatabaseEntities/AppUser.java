@@ -97,37 +97,6 @@ public class AppUser {
     public AppUser() {
     }
 
-    public AppUser(String id, String login, String name, String secondName, String avatarURL, Integer vkId) {
-        this.id = id;
-        this.login = login;
-        this.name = name;
-        this.secondName = secondName;
-        this.avatarURL = avatarURL;
-        this.vkId = vkId;
-    }
-
-    public AppUser(String id, String name, String secondName, String avatarURL, Integer vkId) {
-        this.id = id;
-        this.name = name;
-        this.secondName = secondName;
-        this.avatarURL = avatarURL;
-        this.vkId = vkId;
-    }
-
-    public AppUser(String id, String login, String password, String name,
-                   String secondName, String universityId,
-                   String scheduleUserId, ScheduleUser scheduleUser, University university) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.name = name;
-        this.secondName = secondName;
-        this.universityId = universityId;
-        this.scheduleUserId = scheduleUserId;
-        this.scheduleUser = scheduleUser;
-        this.university = university;
-    }
-
     public String getId() {
         return id;
     }
@@ -274,7 +243,7 @@ public class AppUser {
 
     @Override
     public String toString() {
-        return "ScheduleAppUser{" +
+        return "AppUser{" +
                 "id='" + id + '\'' +
                 ", login='" + login + '\'' +
                 ", name='" + name + '\'' +

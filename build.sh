@@ -14,7 +14,7 @@ buildVersion="$buildBranch.$buildNumber"
 
 mvn -Dmaven.test.skip=true clean package
 
-echo Y | docker image prune
+echo Y | docker image prune -a
 docker build -t $imageName:latest \
              -t $imageName:$buildVersion .
 mkdir -p ./$exportDirectory
