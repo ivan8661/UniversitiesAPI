@@ -63,7 +63,7 @@ public class GroupController {
     @GetMapping("/universities/{universityId}/groups/{groupId}")
     public  ResponseEntity<AnswerTemplate<ScheduleUser>> getGroup(@PathVariable("universityId") String universityId,
                                                                   @PathVariable("groupId") String groupId)
-                                                                  throws UserException {
+            throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(scheduleUserService.getScheduleUser(universityId, groupId), null));
     }
 
