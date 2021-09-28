@@ -17,6 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * @author Poltorakov
@@ -53,6 +56,15 @@ public class UserController {
         AppUser user = userService.vkAuthorization(new JSONObject(VKAuthData).optString("token"));
         String userSession = sessionService.setUserSession(user.getId(), httpHeaders.getFirst("x-platform"));
         return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new AuthResponseObject(userSession, user), null));
+    }
+
+    @SessionRequired
+    @PostMapping(path = "/auth/logout")
+    public ResponseEntity<AnswerTemplate<Map<String, Boolean>>> logout(@RequestHeader HttpHeaders httpHeaders) throws UserException, ServiceException {
+        sessionService.logout(httpHeaders.getFirst("X-Session-Id"));
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("success", true);
+        return ResponseEntity.ok(new AnswerTemplate(map, null));
     }
 
     @Transactional

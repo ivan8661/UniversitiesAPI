@@ -42,7 +42,7 @@ public class ProfessorController {
 
     @GetMapping("/universities/{universityId}/professors/{professorId}")
     public ResponseEntity<AnswerTemplate<ScheduleUser>> getProfessor(@PathVariable("universityId") String universityId,
-                                                                     @PathVariable("professorId") String professorId) throws UserException {
+                                                                     @PathVariable("professorId") String professorId) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(scheduleUserService.getScheduleUser(universityId, professorId), null));
     }
 }

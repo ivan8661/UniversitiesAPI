@@ -20,7 +20,6 @@ docker build -t $imageName:latest \
 mkdir -p ./$exportDirectory
 echo Y | docker image prune
 
-docker push
 docker save -o ./$exportDirectory/image.tar $dockerRegistry/$projectName/$moduleName
 cp ./docker-compose.yml ./$exportDirectory/docker-compose.yml
 
