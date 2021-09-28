@@ -33,6 +33,9 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
+    public TokenFile tokenFile;
+
+    @Autowired
     private UserSessionRepository userSessionRepository;
 
     @Autowired
@@ -55,15 +58,20 @@ public class UserService {
 
     public AppUser authUserService(@NonNull String universityId, @NonNull String login, @NonNull String password) throws UserException, ServiceException {
         AppUser user = fetchUserFromService(universityId, login, password);
-        if( user.getNews() == null ) { newsService.setFeedSources(user, user.getUniversityId()); }
+        if( user.getNews() == null ) { setFeedSourcesToUser(user); }
         return user;
+    }
+
+    private void setFeedSourcesToUser(AppUser user) throws ServiceException, UserException {
+        String feedSources = newsService.getFeedSourcesString(user.getUniversityId());
+        user.setNews(feedSources);
     }
 
     public AppUser authUserVK(@NonNull String token) throws UserException, ServiceException {
         AppUser user = fetchUserFromVK(token);
         String universityId = user.getUniversityId();
         if( user.getNews() == null && universityId != null) {
-            newsService.setFeedSources(user, universityId);
+            setFeedSourcesToUser(user);
         }
         return user;
     }
@@ -100,7 +108,7 @@ public class UserService {
         String avatar = getAvatarURL(token);
         user.setAvatarURL(avatar);
 
-        TokenFile.addTokenToFile(token);
+        tokenFile.addToken(token);
         userRepository.save(user);
         return user;
     }
@@ -144,7 +152,7 @@ public class UserService {
         }
 
         if(user.getNews() == null || new JSONArray(user.getNews()).length() == 0 ) {
-            newsService.setFeedSources(user, user.getUniversityId());
+            setFeedSourcesToUser(user);
         }
 
         userRepository.save(user);
@@ -159,7 +167,7 @@ public class UserService {
         user.setUniversityId(universityId);
         user.setExternalId(externalId);
 
-        newsService.setFeedSources(user, user.getUniversityId());
+        setFeedSourcesToUser(user);
 
         userRepository.save(user);
 
@@ -213,7 +221,7 @@ public class UserService {
 
             // Updating news sources if new university is different from old
             if (user.getUniversityId() == null) { // first university set
-                newsService.setFeedSources(user, universityId);
+                setFeedSourcesToUser(user);
             } else if(!user.getUniversityId().equals(universityId) ) { // changing university
                 // can't change university if vk is not connected. This may cause AppUser inconsistency (empty external id and vk id)
                 if(user.getVkId() == null || user.getVkId() == 0) {

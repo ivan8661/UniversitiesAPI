@@ -35,6 +35,8 @@ import java.util.regex.Pattern;
 @Service
 public class NewsService {
 
+    @Autowired
+    public TokenFile tokenFile;
 
     @Autowired
     private UserSessionRepository userSessionRepository;
@@ -99,25 +101,32 @@ public class NewsService {
 
 
     public List<VKNews> getVKPostsFromSource(String sourceId, String offset, String limit) {
-        String token = TokenFile.getRandomTokenFromSet(TokenFile.getTokensFromFile());
+        String token = tokenFile.getToken();
+
         List<VKNews> list = new ArrayList<>();
 
-        ResponseEntity<VKGroup> responseEntity = new RestTemplate().exchange("https://api.vk.com/method/wall.get?v=5.130&access_token="+
-                        token + "&offset=" + offset + "&count=" + limit + "&owner_id=" + sourceId + "&extended=1",
-                HttpMethod.GET, new HttpEntity(new HttpHeaders()), new ParameterizedTypeReference<>(){});
+        ResponseEntity<VKGroup> responseEntity = new RestTemplate().exchange(
+                "https://api.vk.com/method/wall.get?v=5.130&access_token="+ token + "&offset=" + offset + "&count=" + limit + "&owner_id=" + sourceId + "&extended=1",
+                HttpMethod.GET,
+                new HttpEntity(new HttpHeaders()),
+                new ParameterizedTypeReference<>(){}
+        );
 
-        if(responseEntity.getBody()==null || responseEntity.getBody().getResponse()==null) {
+        if(responseEntity.getBody() == null || responseEntity.getBody().getResponse() == null) {
             return list;
         }
 
         Response response = responseEntity.getBody().getResponse();
 
         for(Item item : response.getItems()){
-            if(item.getCopyHistory()!=null){
+
+            if(item.getCopyHistory() != null) {
                 setItemFromInnerPost(item, item.getCopyHistory().get(0));
             }
+
             String id = DigestUtils.sha256Hex("VK" + item.getOwnerId() + item.getId());
-                Matcher m = titlePattern.matcher(item.getText());
+
+            Matcher m = titlePattern.matcher(item.getText());
             String title = m.find() ? m.group(1) : item.getText();
             String text = item.getText();
             String image = getImageFromVKPost(item.getAttachments());
@@ -154,10 +163,6 @@ public class NewsService {
         return null;
     }
 
-    public void setFeedSources(AppUser appUser, String universityId) throws UserException, ServiceException {
-        appUser.setNews(getUniversityNewsList(universityId));
-    }
-
     private ArrayList<NewsSource> getFeedSourcesFromString(String news) {
         JSONArray jsonArrayFeedSources = new JSONArray(news);
         ArrayList<NewsSource> feedSources = new ArrayList<>();
@@ -171,7 +176,7 @@ public class NewsService {
         return feedSources;
     }
 
-    private String getUniversityNewsList(String universityId) throws UserException, ServiceException {
+    public String getFeedSourcesString(String universityId) throws UserException, ServiceException {
         Application application = eurekaInstance.getApplication(universityId);
         String newsSources;
         try {
