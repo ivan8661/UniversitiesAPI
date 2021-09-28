@@ -5,6 +5,7 @@ import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.UserSession;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
+import com.scheduleapigateway.apigateway.Services.SessionService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class SessionCheckAspect {
 
     @Autowired
-    private UserSessionRepository userSessionRepository;
+    private SessionService sessionService;
 
     @Around("@annotation(SessionRequired)")
     public Object checkSessionId(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -26,16 +27,11 @@ public class SessionCheckAspect {
             if(arg instanceof HttpHeaders) {
                 HttpHeaders headers = (HttpHeaders) arg;
                 String sessionId = headers.getFirst("X-Session-Id");
-
                 if(sessionId == null){
                     throw new UserException(UserExceptionType.EMPTY_SESSION);
                 }
 
-                UserSession userSession = userSessionRepository.findUserSessionById(sessionId);
-                if (userSession == null) {
-                    throw new UserException(UserExceptionType.WRONG_SESSION);
-                }
-
+                sessionService.refresh(sessionId);
                 break;
             }
         }

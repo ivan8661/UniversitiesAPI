@@ -23,7 +23,7 @@ public class UserSession {
 
 
     @Column(name="last_active", nullable = false)
-    private String lastActive;
+    private Long lastActive;
 
     private String platform;
 
@@ -36,7 +36,7 @@ public class UserSession {
     }
 
     @Autowired
-    public UserSession(String id, String lastActive, String platform, Optional<AppUser> user) {
+    public UserSession(String id, Long lastActive, String platform, Optional<AppUser> user) {
         this.id = id;
         this.lastActive = lastActive;
         this.platform = platform;
@@ -51,11 +51,11 @@ public class UserSession {
         this.id = id;
     }
 
-    public String getLastActive() {
+    public Long getLastActive() {
         return lastActive;
     }
 
-    public void setLastActive(String lastActive) {
+    public void setLastActive(Long lastActive) {
         this.lastActive = lastActive;
     }
 
