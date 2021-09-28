@@ -5,6 +5,8 @@ import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
+import com.scheduleapigateway.apigateway.Entities.DeadlineSource;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Services.DeadlineService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +75,7 @@ public class DeadlineController {
     @SessionRequired
     @GetMapping(path="/deadlines/{deadlineId}")
     public ResponseEntity<AnswerTemplate<Deadline>> getSingleDeadline(@RequestHeader HttpHeaders httpHeaders,
-                                                                      @PathVariable ("deadlineId") String deadlineId) throws UserException {
+                                                                      @PathVariable ("deadlineId") String deadlineId) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.getDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
     }
 
@@ -95,7 +97,7 @@ public class DeadlineController {
     @SessionRequired
     @GetMapping(path="/deadlines")
     public ResponseEntity<AnswerTemplate<ListAnswer<Deadline>>> getOwnDeadlineWithName(@RequestHeader HttpHeaders httpHeaders,
-                                                                                       @RequestParam Map<String, String> params) throws UserException, NoSuchFieldException {
+                                                                                       @RequestParam Map<String, String> params) throws UserException, NoSuchFieldException, ServiceException {
         String sessionId = httpHeaders.getFirst("X-Session-Id");
         return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.getDeadlinesWithFilters(sessionId, params), null));
     }
@@ -106,10 +108,9 @@ public class DeadlineController {
      */
     @SessionRequired
     @GetMapping(path="/deadlines/sources")
-    public ResponseEntity getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer(new ArrayList() , 0), null));
+    public ResponseEntity<AnswerTemplate<ListAnswer<DeadlineSource>>> getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) throws ServiceException, UserException {
+        String sessionId = httpHeaders.getFirst("X-Session-Id");
+        ListAnswer sources = deadlineService.getSources(sessionId);
+        return ResponseEntity.ok().body(new AnswerTemplate<>(sources, null));
     }
-
-
-
 }

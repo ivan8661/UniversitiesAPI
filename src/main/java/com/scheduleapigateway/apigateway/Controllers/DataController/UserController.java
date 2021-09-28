@@ -6,6 +6,7 @@ import com.scheduleapigateway.apigateway.Controllers.AuthResponseObject;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
+import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
 import com.scheduleapigateway.apigateway.Services.SessionService;
 import com.scheduleapigateway.apigateway.Services.UserService;
 import org.json.JSONObject;
@@ -48,7 +49,7 @@ public class UserController {
      */
     @Transactional
     @PostMapping(path = "/auth/vk")
-    public ResponseEntity<AnswerTemplate<AuthResponseObject>> authVK(@RequestBody String VKAuthData, @RequestHeader HttpHeaders httpHeaders) throws UserException {
+    public ResponseEntity<AnswerTemplate<AuthResponseObject>> authVK(@RequestBody String VKAuthData, @RequestHeader HttpHeaders httpHeaders) throws UserException, ServiceException {
         AppUser user = userService.vkAuthorization(new JSONObject(VKAuthData).optString("token"));
         String userSession = sessionService.setUserSession(user.getId(), httpHeaders.getFirst("x-platform"));
         return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new AuthResponseObject(userSession, user), null));
@@ -59,14 +60,23 @@ public class UserController {
     public ResponseEntity<AnswerTemplate<AuthResponseObject>> authService(@RequestHeader HttpHeaders httpHeaders,
                                                                                    @RequestBody String authorization,
                                                                                    @PathVariable("serviceId") String serviceId) throws UserException, ServiceException {
-        AppUser user = userService.authUserService(authorization, serviceId);
+        JSONObject authJson = new JSONObject(authorization);
+
+        String login = authJson.optString("serviceLogin");
+        String password = authJson.optString("servicePassword");
+        if (login == null || password == null) {
+            throw new UserException(UserExceptionType.VALIDATION_ERROR, "incorrect input data");
+        }
+
+        AppUser user = userService.authUserService(serviceId, login, password);
         String userSession = sessionService.setUserSession(user.getId(), httpHeaders.getFirst("x-platform"));
+
         return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new AuthResponseObject(userSession, user), null));
     }
 
     @SessionRequired
     @GetMapping(path="/me")
-    public ResponseEntity<AnswerTemplate<AppUser>> getUser(@RequestHeader HttpHeaders httpHeaders) throws UserException {
+    public ResponseEntity<AnswerTemplate<AppUser>> getUser(@RequestHeader HttpHeaders httpHeaders) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(userService.getUser(httpHeaders.getFirst("X-Session-Id")), null));
     }
 

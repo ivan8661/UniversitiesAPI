@@ -1,5 +1,7 @@
 package com.scheduleapigateway.apigateway.ServiceHelpers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
@@ -10,16 +12,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.lang.NonNullApi;
 import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ServiceRequest {
@@ -73,17 +77,52 @@ public class ServiceRequest {
 
     public <T> T request(Application service, String endpoint, ParameterizedTypeReference<T> responseType, HttpMethod httpMethod, HttpEntity<?> params) throws RestClientException, UserException, ServiceException {
 
+        SchedCoreApplication.getLogger().error("\n\n\n\n\n\nTYPE:" +responseType.getType().getTypeName()+"\n\n\n\n\n");
+
         String baseURL = service.getInstances().get(0).getHomePageUrl();
         String url = baseURL + endpoint;
         SchedCoreApplication.getLogger().info("[" + service.getName() + "] "+httpMethod.name()+": " + url +
                 "\n HEADERS: \n" + params.getHeaders() +
                 "\n Body: \n" + params.getBody());
 
-        responseType.getType();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, httpMethod, params,  String.class);
 
-        ResponseEntity<T> responseEntity = restTemplate.exchange(url, httpMethod, params,  responseType);
+        ClientHttpResponse resp = new ClientHttpResponse() {
+            @Override
+            public HttpHeaders getHeaders() {
+                return responseEntity.getHeaders();
+            }
 
-        return handleResponse(service, responseEntity);
+            @Override
+            public InputStream getBody() throws IOException {
+                return  new ByteArrayInputStream(responseEntity.getBody().getBytes(StandardCharsets.UTF_8));
+            }
+
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return responseEntity.getStatusCode();
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return responseEntity.getStatusCodeValue();
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return  responseEntity.getStatusCode().name();
+            }
+
+            @Override
+            public void close() { }
+        };
+
+        ResponseExtractor<ResponseEntity<T>> extractor = restTemplate.responseEntityExtractor(responseType.getType());
+        try {
+            return extractor.extractData(resp).getBody();
+        } catch (IOException e) {
+            throw new UserException(UserExceptionType.SERVER_ERROR, e.getMessage(), e.getStackTrace());
+        }
     }
 
     public <T> T request(Application service, String endpoint, Class<T> responseType, HttpMethod httpMethod, HttpEntity<?> params) throws RestClientException, UserException, ServiceException {
@@ -94,9 +133,20 @@ public class ServiceRequest {
                 "\n HEADERS: \n" + params.getHeaders() +
                 "\n Body: \n" + params.getBody());
 
-        ResponseEntity<T> responseEntity = restTemplate.exchange(url, httpMethod, params,  responseType);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, httpMethod, params,  String.class);
 
-        return handleResponse(service, responseEntity);
+        var str = handleResponse(service,responseEntity);
+
+        var mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(str,responseType);
+        } catch (JsonProcessingException e) {
+            try {
+                return (T)str;
+            } catch (Exception ex) {
+                throw new UserException(UserExceptionType.SERVER_ERROR, e.getMessage(), e.getStackTrace());
+            }
+        }
     }
 
     private <T> T handleResponse(Application service, ResponseEntity<T> responseEntity) throws ServiceException {
@@ -108,7 +158,7 @@ public class ServiceRequest {
 
         if( !responseEntity.getStatusCode().is2xxSuccessful() ) {
             SchedCoreApplication.getLogger().error(logMessage);
-            JSONObject body = new JSONObject(responseEntity.getBody().toString());
+            JSONObject body = new JSONObject(responseEntity.getBody());
             throw new ServiceException(responseEntity.getStatusCode(), body);
         } else {
             SchedCoreApplication.getLogger().info(logMessage);

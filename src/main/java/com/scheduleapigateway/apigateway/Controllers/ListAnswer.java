@@ -3,6 +3,7 @@ package com.scheduleapigateway.apigateway.Controllers;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListAnswer<T> {
@@ -32,5 +33,15 @@ public class ListAnswer<T> {
 
     public List<T> getListAnswer() {
         return listAnswer;
+    }
+
+    public static ListAnswer EMPTY = new ListAnswer(new ArrayList(), 0);
+
+    @Override
+    public String toString() {
+        return "ListAnswer{" +
+                "totalCount=" + totalCount +
+                "listAnswer=" + listAnswer +
+                '}';
     }
 }

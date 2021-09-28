@@ -3,10 +3,13 @@ package com.scheduleapigateway.apigateway.Entities.DatabaseEntities;
 
 import GetGraphQL.SearchableField;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.scheduleapigateway.apigateway.Entities.File;
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * @author Poltorakov
@@ -59,28 +62,40 @@ public class Deadline {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private AppUser user;
 
-
+    // External task fields
+    @Transient
+    @JsonProperty("type")
+    private String type;
 
     @Transient
+    @JsonProperty("subject")
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     private Subject subject;
+
+    @Transient
+    @JsonProperty("curPoints")
+    private Integer curPoints;
+    @Transient
+    @JsonProperty("markpoint")
+    private Integer markpoint;
+
+    @Transient
+    @JsonProperty("reportRequired")
+    private Boolean reportRequired;
+
+    @Transient
+    @JsonProperty("status")
+    private String status;
+
+    @Transient
+    @JsonProperty("file")
+    private List<File> file;
 
 
     public Deadline() {
-        this.isClosed=false;
+        this.isClosed = false;
     }
 
-    public Deadline(String id, String title, String description, Long endDate, Long creation, AppUser user, String subjectId, boolean isExternal, String universityId) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.endDate = endDate;
-        this.startDate = creation;
-        this.user = user;
-        this.isClosed = false;
-        this.subjectId = subjectId;
-        this.isExternal = isExternal;
-        this.universityId = universityId;
-    }
 
     public String getId() {
         return id;
@@ -189,3 +204,4 @@ public class Deadline {
         this.subject = subject;
     }
 }
+
