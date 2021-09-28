@@ -48,7 +48,7 @@ public class DeadlineController {
      */
     @SessionRequired
     @PostMapping(path="/deadlines")
-    public ResponseEntity<AnswerTemplate<Deadline>> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody String deadlineRequest) throws UserException {
+    public ResponseEntity<AnswerTemplate<Deadline>> createDeadline(@RequestHeader HttpHeaders httpHeaders, @RequestBody String deadlineRequest) throws UserException, ServiceException {
         return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(deadlineService.createDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineRequest), null));
     }
 
@@ -62,13 +62,13 @@ public class DeadlineController {
      */
     @SessionRequired
     @PostMapping(path="/deadlines/{deadlineId}/close")
-    public ResponseEntity<AnswerTemplate<Deadline>> closeDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
+    public ResponseEntity<AnswerTemplate<Deadline>> closeDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, true), null));
     }
 
     @SessionRequired
     @DeleteMapping(path="/deadlines/{deadlineId}/close")
-    public ResponseEntity<AnswerTemplate<Deadline>> restartDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException {
+    public ResponseEntity<AnswerTemplate<Deadline>> restartDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable("deadlineId") String deadlineId) throws UserException, ServiceException {
         return ResponseEntity.status(202).body(new AnswerTemplate<>(deadlineService.restartOrCloseDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, false), null));
     }
 
@@ -83,7 +83,7 @@ public class DeadlineController {
     @PutMapping(path="/deadlines/{deadlineId}")
     public ResponseEntity<AnswerTemplate<Deadline>> updateDeadline(@RequestHeader HttpHeaders httpHeaders,
                                                                    @PathVariable ("deadlineId") String deadlineId,
-                                                                   @RequestBody String deadlineRequest) throws UserException {
+                                                                   @RequestBody String deadlineRequest) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.updateDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId, deadlineRequest), null));
     }
 

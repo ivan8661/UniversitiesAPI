@@ -139,9 +139,9 @@ public class DeadlineService {
         return new ServiceRequest().post(application, "deadlines", httpEntity, new ParameterizedTypeReference<>() {});
     }
 
-    public Deadline createDeadline(@NonNull String sessionId, String bodyDeadline) throws UserException {
+    public Deadline createDeadline(@NonNull String sessionId, String bodyDeadline) throws UserException, ServiceException {
         Deadline deadline = setDeadlineFields(new JSONObject(bodyDeadline), new Deadline(), sessionId);
-        deadline.setId(DigestUtils.sha256Hex(UUID.randomUUID().toString()));
+        deadline.setId(UUID.randomUUID().toString());
         deadline.setStartDate(System.currentTimeMillis() / 1000);
         deadline.setIsExternal(false);
         deadline.setUser(userSessionRepository.findUserSessionById(sessionId).getUser());
@@ -149,31 +149,35 @@ public class DeadlineService {
         return deadline;
     }
 
-    public Deadline updateDeadline(@NonNull String sessionId, String deadlineId, String bodyDeadline) throws UserException {
+    public Deadline updateDeadline(@NonNull String sessionId, String deadlineId, String bodyDeadline) throws UserException, ServiceException {
         Deadline deadline = checkForExist(deadlineId);
         setDeadlineFields(new JSONObject(bodyDeadline), deadline, sessionId);
         deadlineRepository.save(deadline);
 
         String subjectId = deadline.getSubjectId();
         String universityId = deadline.getUniversityId();
-        if (subjectId != null && universityId != null) {
+        try {
             Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
             deadline.setSubject(deadlineSubject);
+        } catch (ServiceException e) {
+            if(e.getHttpStatus().value() != 404) throw e;
         }
 
         return deadline;
     }
 
-    public Deadline restartOrCloseDeadline(@NonNull String sessionId, String deadlineId, boolean close) throws UserException {
+    public Deadline restartOrCloseDeadline(@NonNull String sessionId, String deadlineId, boolean close) throws UserException, ServiceException {
         Deadline deadline = checkForExist(deadlineId);
         deadline.setIsClosed(close);
         deadlineRepository.save(deadline);
 
         String subjectId = deadline.getSubjectId();
         String universityId = deadline.getUniversityId();
-        if (subjectId != null && universityId != null) {
+        try {
             Subject deadlineSubject = getSubjectFromService(universityId, subjectId);
             deadline.setSubject(deadlineSubject);
+        } catch (ServiceException e) {
+            if(e.getHttpStatus().value() != 404) throw e;
         }
 
         return deadline;
@@ -202,32 +206,37 @@ public class DeadlineService {
     }
 
 
-    private Deadline setDeadlineFields(JSONObject jsonDeadline, Deadline deadline, String sessionId) throws UserException {
+    private Deadline setDeadlineFields(JSONObject jsonDeadline, Deadline deadline, String sessionId) throws UserException, ServiceException {
+
+        AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
+
         for(String key : jsonDeadline.keySet()){
             switch (key) {
-                case "title"       ->   deadline.setTitle       (jsonDeadline.optString("title"));
-                case "date"        ->   deadline.setEndDate     (jsonDeadline.optLong("date"));
+                case "title"       ->   deadline.setTitle(jsonDeadline.optString(key));
+                case "date"        ->   deadline.setEndDate(jsonDeadline.optLong(key));
                 case "subjectId"   ->
                                         {
                                             String subjectId = jsonDeadline.optString("subjectId", null);
-                                            if(subjectId != null) {
-                                                deadline.setSubject(getSubjectFromService(userSessionRepository.findUserSessionById(sessionId).getUser().getUniversityId(), subjectId));
+                                            String newUniversityId = appUser.getUniversityId();
+
+                                            // getSubjectFromService returns null if any of universityId, subjectId is null
+                                            if(getSubjectFromService(newUniversityId, subjectId) != null) {
+                                                deadline.setUniversityId(newUniversityId);
                                                 deadline.setSubjectId(subjectId);
-                                                AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
-                                                if(appUser.getUniversityId() != null)
-                                                    deadline.setUniversityId(appUser.getUniversityId());
-                                            } else {
+                                            } else if ( subjectId == null ) {
                                                 deadline.setSubjectId(null);
+                                            } else {
+                                                SchedCoreApplication.getLogger().warn("Passed subjectID="+subjectId+" isn't null, but wasn't wound in service(id="+newUniversityId+")");
                                             }
                                         }
-                case "description" ->   deadline.setDescription (jsonDeadline.optString("description"));
+                case "description" ->  deadline.setDescription (jsonDeadline.optString(key));
             }
         }
         return deadline;
     }
 
 
-    private Subject getSubjectFromService(String universityId, String subjectId) throws UserException {
+    private Subject getSubjectFromService(String universityId, String subjectId) throws UserException, ServiceException {
         if(universityId == null || subjectId == null){
             return null;
         }
@@ -239,12 +248,7 @@ public class DeadlineService {
             return null;
         }
 
-        Subject subjectResponseEntity;
-        try {
-            subjectResponseEntity = new ServiceRequest().get(application,"subjects/" + subjectId, Subject.class);
-        } catch (RestClientException | ServiceException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
-        }
+        Subject subjectResponseEntity = new ServiceRequest().get(application,"subjects/" + subjectId, Subject.class);;
         return subjectResponseEntity;
     }
 
