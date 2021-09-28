@@ -44,7 +44,7 @@ public class ScheduleUserService {
      * @return scheduleUser
      * @throws UserException default custom exception
      */
-    public ScheduleUser getScheduleUser(String universityId, String scheduleUserId) throws UserException {
+    public ScheduleUser getScheduleUser(String universityId, String scheduleUserId) throws UserException, ServiceException {
 
         Application application = eurekaInstance.getApplication(universityId);
 

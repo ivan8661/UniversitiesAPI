@@ -71,7 +71,7 @@ public class UserService {
     }
 
     @Transactional
-    public AppUser vkAuthorization(String token) throws UserException {
+    public AppUser vkAuthorization(String token) throws UserException, ServiceException {
 
         this.token = token;
 
@@ -154,7 +154,7 @@ public class UserService {
             userRepository.delete(user);
     }
 
-    public AppUser getUser(String sessionId) throws UserException {
+    public AppUser getUser(String sessionId) throws ServiceException {
             AppUser user = userSessionRepository.findUserSessionById(sessionId).getUser();
             try {
                 setUserObjects(user);
@@ -334,7 +334,7 @@ public class UserService {
     }
 
 
-    private AppUser setUserObjects(AppUser user) throws UserException {
+    private AppUser setUserObjects(AppUser user) throws UserException, ServiceException {
         if (user.getUniversityId() != null && !user.getUniversityId().isEmpty())
             user.setUniversity(universityService.getUniversity(user.getUniversityId()));
         if (user.getScheduleUserId() != null && !user.getScheduleUserId().isEmpty())

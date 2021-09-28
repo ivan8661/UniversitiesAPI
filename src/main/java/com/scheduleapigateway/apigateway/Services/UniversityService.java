@@ -3,17 +3,13 @@ package com.scheduleapigateway.apigateway.Services;
 import com.netflix.discovery.shared.Application;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.University;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Exceptions.UserExceptionType;
-import com.scheduleapigateway.apigateway.Services.EurekaInstance;
-import org.json.JSONObject;
+import com.scheduleapigateway.apigateway.ServiceHelpers.ServiceRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,50 +23,31 @@ public class UniversityService {
     private EurekaInstance eurekaInstance;
 
 
-    public University getUniversity(String universityId) throws UserException {
+    public University getUniversity(String universityId) throws UserException, ServiceException {
 
         Application application = eurekaInstance.getApplication(universityId);
+        return getUniversity(application);
+    }
 
-        ResponseEntity<String> universityInfo;
+    private University getUniversity(Application application) throws UserException, ServiceException {
         try {
-            universityInfo = new RestTemplate().exchange(application.getInstances().get(0).getHomePageUrl() + "universityInfo", HttpMethod.GET, HttpEntity.EMPTY, String.class);
+            University university = new ServiceRequest().get(application,"universityInfo", University.class);
+            return university;
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
-
-        JSONObject universityInfoJson = new JSONObject(universityInfo.getBody());
-
-            return new University(
-                    universityInfoJson.optString("_id"),
-                    universityInfoJson.optString("name"),
-                    universityInfoJson.optString("serviceName"),
-                    universityInfoJson.optInt("referenceDate"),
-                    universityInfoJson.optString("referenceWeek")
-                    );
     }
+
 
     public ListAnswer<University> getUniversities() throws UserException {
 
         List<Application> applications = eurekaInstance.getApplications();
         ArrayList<University> universities = new ArrayList<>();
         for (Application application : applications) {
-
             try {
-                String url = application.getInstances().get(0).getHomePageUrl() + "universityInfo";
-                ResponseEntity<String> universityInfo = new RestTemplate().exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
-
-                if (universityInfo.getStatusCode().is2xxSuccessful()) {
-                    JSONObject universityInfoJson = new JSONObject(universityInfo.getBody());
-
-                    universities.add(new University(
-                            universityInfoJson.optString("_id"),
-                            universityInfoJson.optString("name"),
-                            universityInfoJson.optString("serviceName"),
-                            universityInfoJson.optInt("referenceDate"),
-                            universityInfoJson.optString("referenceWeek")
-                    ));
-                }
-            } catch (RestClientException exception) { continue; }
+                University university = getUniversity(application);
+                universities.add(university);
+            } catch (RestClientException | ServiceException exception) { continue; }
         }
 
         return new ListAnswer<>(universities, universities.size());

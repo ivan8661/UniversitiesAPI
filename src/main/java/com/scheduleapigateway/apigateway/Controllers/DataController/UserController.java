@@ -49,7 +49,7 @@ public class UserController {
      */
     @Transactional
     @PostMapping(path = "/auth/vk")
-    public ResponseEntity<AnswerTemplate<AuthResponseObject>> authVK(@RequestBody String VKAuthData, @RequestHeader HttpHeaders httpHeaders) throws UserException {
+    public ResponseEntity<AnswerTemplate<AuthResponseObject>> authVK(@RequestBody String VKAuthData, @RequestHeader HttpHeaders httpHeaders) throws UserException, ServiceException {
         AppUser user = userService.vkAuthorization(new JSONObject(VKAuthData).optString("token"));
         String userSession = sessionService.setUserSession(user.getId(), httpHeaders.getFirst("x-platform"));
         return ResponseEntity.status(HttpStatus.CREATED).body(new AnswerTemplate<>(new AuthResponseObject(userSession, user), null));
@@ -76,7 +76,7 @@ public class UserController {
 
     @SessionRequired
     @GetMapping(path="/me")
-    public ResponseEntity<AnswerTemplate<AppUser>> getUser(@RequestHeader HttpHeaders httpHeaders) throws UserException {
+    public ResponseEntity<AnswerTemplate<AppUser>> getUser(@RequestHeader HttpHeaders httpHeaders) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(userService.getUser(httpHeaders.getFirst("X-Session-Id")), null));
     }
 

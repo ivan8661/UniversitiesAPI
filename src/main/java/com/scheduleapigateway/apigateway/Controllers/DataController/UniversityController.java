@@ -4,6 +4,7 @@ package com.scheduleapigateway.apigateway.Controllers.DataController;
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.University;
+import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Services.UniversityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class UniversityController {
     }
 
     @GetMapping("/universities/{universityId}")
-    public ResponseEntity<AnswerTemplate<University>> getUniversity(@PathVariable("universityId") String universityId) throws UserException {
+    public ResponseEntity<AnswerTemplate<University>> getUniversity(@PathVariable("universityId") String universityId) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(universityService.getUniversity(universityId), null));
     }
 

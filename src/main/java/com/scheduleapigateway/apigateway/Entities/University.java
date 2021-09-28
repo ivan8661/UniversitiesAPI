@@ -14,9 +14,11 @@ public class University {
     private String service;
 
 
+    @JsonProperty("referenceDate")
     private Integer referenceDate;
 
 
+    @JsonProperty("referenceWeek")
     private String referenceWeek;
 
 
