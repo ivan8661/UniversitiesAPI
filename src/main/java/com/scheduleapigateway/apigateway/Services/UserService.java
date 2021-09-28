@@ -6,8 +6,8 @@ import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.UserSession;
 import com.scheduleapigateway.apigateway.Entities.Repositories.DeadlineRepository;
-import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
+import com.scheduleapigateway.apigateway.Entities.Repositories.UserSessionRepository;
 import com.scheduleapigateway.apigateway.Entities.ServiceUser;
 import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
@@ -23,8 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import reactor.util.annotation.NonNull;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -45,7 +44,7 @@ public class UserService {
     @Autowired
     private EurekaInstance eurekaInstance;
 
-    public AppUser getUser(String sessionId) throws ServiceException {
+    public AppUser getUser(String sessionId) {
         return userSessionRepository.findUserSessionById(sessionId).getUser();
     }
 
@@ -71,7 +70,7 @@ public class UserService {
 
 
     @Transactional
-    private AppUser fetchUserFromVK(@NonNull String token) throws UserException, ServiceException {
+    private AppUser fetchUserFromVK(@NonNull String token) throws UserException {
 
         ResponseEntity<String> vkUserResponse =  new RestTemplate().exchange("https://api.vk.com/method/account.getProfileInfo?v=5.130&access_token="
                 + token, HttpMethod.GET,new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<>(){});
@@ -107,7 +106,7 @@ public class UserService {
     }
     private String getAvatarURL(String token) {
         ResponseEntity<String> vkPhotoAnswer =  new RestTemplate().exchange("https://api.vk.com/method/photos.get?v=5.130&album_id=profile&access_token=" + token,
-                HttpMethod.GET, new HttpEntity(new HttpHeaders()), new ParameterizedTypeReference<>() {});
+                HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<>() {});
 
         JSONObject vkPhoto = new JSONObject(vkPhotoAnswer.getBody());
         if(vkPhoto.optJSONObject("response").optJSONArray("items").length() != 0) {
@@ -144,7 +143,7 @@ public class UserService {
             user.setSecondName(userInfo.getLastName());
         }
 
-        if(user.getNews() == null || new JSONArray(user.getNews()) == null ) {
+        if(user.getNews() == null || new JSONArray(user.getNews()).length() == 0 ) {
             newsService.setFeedSources(user, user.getUniversityId());
         }
 
@@ -176,7 +175,7 @@ public class UserService {
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity requestEntity = new HttpEntity(body.toString(), httpHeaders);
+        HttpEntity<String> requestEntity = new HttpEntity<>(body.toString(), httpHeaders);
 
         return new ServiceRequest().post(application,"auth", requestEntity, ServiceUser.class);
     }
@@ -184,7 +183,11 @@ public class UserService {
     public AppUser updateUser(String userId, String params) throws UserException, ServiceException {
         JSONObject paramsJson = new JSONObject(params);
 
-        AppUser user = userRepository.findById(userId).get();
+        Optional<AppUser> optUser = userRepository.findById(userId);
+        if(optUser.isEmpty()) {
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "User doesn't exist");
+        }
+        AppUser user = optUser.get();
 
         String login = null;
         String password = null;
@@ -243,7 +246,7 @@ public class UserService {
             }
 
             AppUser contributor = userRepository.findByExternalIdAndUniversityId(serviceUser.getExternalId(), user.getUniversityId());
-            if( contributor != null && contributor.getId() != user.getId() ) {
+            if( contributor != null && !contributor.getId().equals(user.getId()) ) {
                 mergeUserToUser(user, contributor);
             }
 
