@@ -62,7 +62,10 @@ public class UserService {
 
     public AppUser authUserVK(@NonNull String token) throws UserException, ServiceException {
         AppUser user = fetchUserFromVK(token);
-        if( user.getNews() == null ) { newsService.setFeedSources(user, user.getUniversityId());; }
+        String universityId = user.getUniversityId();
+        if( user.getNews() == null && universityId != null) {
+            newsService.setFeedSources(user, universityId);
+        }
         return user;
     }
 
@@ -87,7 +90,7 @@ public class UserService {
         int id = vkUser.optInt("id");
 
         AppUser user = userRepository.findByVkId(id);
-        if(user != null) {
+        if(user == null) {
             user = new AppUser();
             user.setId(UUID.randomUUID().toString());
             user.setVkId(id);
@@ -227,7 +230,7 @@ public class UserService {
 
         // Setting SchedUser
         if(scheduleUserId != null) {
-            if(user.getUniversityId() != null){ throw new UserException(UserExceptionType.VALIDATION_ERROR, "Setting group without university"); }
+            if(user.getUniversityId() == null) { throw new UserException(UserExceptionType.VALIDATION_ERROR, "Setting group without university"); }
             user.setScheduleUserId(scheduleUserId);
         }
 
@@ -240,7 +243,7 @@ public class UserService {
             }
 
             AppUser contributor = userRepository.findByExternalIdAndUniversityId(serviceUser.getExternalId(), user.getUniversityId());
-            if( contributor != null & contributor.getId() != user.getId() ) {
+            if( contributor != null && contributor.getId() != user.getId() ) {
                 mergeUserToUser(user, contributor);
             }
 
