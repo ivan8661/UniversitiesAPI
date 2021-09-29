@@ -221,6 +221,7 @@ public class UserService {
 
             // Updating news sources if new university is different from old
             if (user.getUniversityId() == null) { // first university set
+                user.setUniversityId(universityId);
                 setFeedSourcesToUser(user);
             } else if(!user.getUniversityId().equals(universityId) ) { // changing university
                 // can't change university if vk is not connected. This may cause AppUser inconsistency (empty external id and vk id)
@@ -228,6 +229,7 @@ public class UserService {
                     throw new UserException(UserExceptionType.VALIDATION_ERROR, "Changing University without vk connected");
                 }
 
+                user.setUniversityId(universityId);
                 // settings university-dependent fields to null
                 user.setLogin(null);
                 user.setPassword(null);
@@ -235,8 +237,6 @@ public class UserService {
                 user.setExternalId(null);
                 user.setScheduleUserId(null);
             }
-
-            user.setUniversityId(universityId);
         }
 
         // Setting SchedUser
