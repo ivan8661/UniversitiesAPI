@@ -5,6 +5,7 @@ import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
+import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.UserSession;
 import com.scheduleapigateway.apigateway.Entities.DeadlineSource;
 import com.scheduleapigateway.apigateway.Exceptions.ServiceException;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
@@ -15,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 
@@ -74,8 +74,7 @@ public class DeadlineController {
 
     @SessionRequired
     @GetMapping(path="/deadlines/{deadlineId}")
-    public ResponseEntity<AnswerTemplate<Deadline>> getSingleDeadline(@RequestHeader HttpHeaders httpHeaders,
-                                                                      @PathVariable ("deadlineId") String deadlineId) throws UserException, ServiceException {
+    public ResponseEntity<AnswerTemplate<Deadline>> getSingleDeadline(@RequestHeader HttpHeaders httpHeaders, @PathVariable ("deadlineId") String deadlineId) throws UserException, ServiceException {
         return ResponseEntity.ok().body(new AnswerTemplate<>(deadlineService.getDeadline(httpHeaders.getFirst("X-Session-Id"), deadlineId), null));
     }
 

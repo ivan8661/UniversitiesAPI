@@ -30,7 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import reactor.util.annotation.NonNull;
 
+import javax.swing.text.html.Option;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DeadlineService {
@@ -46,7 +48,7 @@ public class DeadlineService {
 
     public Deadline getDeadline(@NonNull String sessionId, String deadlineId) throws UserException, ServiceException {
 
-        Optional<Deadline> optionalDeadline = deadlineRepository.findById(deadlineId);
+        Optional<Deadline> optionalDeadline = checkForExist(deadlineId, sessionId);
         if(!optionalDeadline.isEmpty()){
             Deadline deadline = optionalDeadline.get();
 
@@ -65,7 +67,6 @@ public class DeadlineService {
         } else {
             return getExternalDeadline(sessionId, deadlineId);
         }
-
     }
 
     private Deadline getExternalDeadline(@NonNull String sessionId, String deadlineId) throws UserException, ServiceException {
@@ -87,11 +88,10 @@ public class DeadlineService {
 
 
         return new ServiceRequest().post(application, "deadlines/"+ deadlineId, httpEntity, Deadline.class);
-
     }
 
     public Deadline deleteDeadline(@NonNull String sessionId, String deadlineId) throws UserException {
-        Deadline deadline = checkForExist(deadlineId);
+        Deadline deadline = checkForExistOrThrow(deadlineId, sessionId);
         deadlineRepository.delete(deadline);
         return deadline;
     }
@@ -145,12 +145,14 @@ public class DeadlineService {
         deadline.setStartDate(System.currentTimeMillis() / 1000);
         deadline.setIsExternal(false);
         deadline.setUser(userSessionRepository.findUserSessionById(sessionId).getUser());
+        deadline.setSubject(getSubjectFromService(deadline.getUniversityId(), deadline.getSubjectId()));
         deadlineRepository.save(deadline);
         return deadline;
     }
 
     public Deadline updateDeadline(@NonNull String sessionId, String deadlineId, String bodyDeadline) throws UserException, ServiceException {
-        Deadline deadline = checkForExist(deadlineId);
+        Deadline deadline = checkForExistOrThrow(deadlineId,sessionId);
+
         setDeadlineFields(new JSONObject(bodyDeadline), deadline, sessionId);
         deadlineRepository.save(deadline);
 
@@ -167,7 +169,8 @@ public class DeadlineService {
     }
 
     public Deadline restartOrCloseDeadline(@NonNull String sessionId, String deadlineId, boolean close) throws UserException, ServiceException {
-        Deadline deadline = checkForExist(deadlineId);
+        Deadline deadline = checkForExistOrThrow(deadlineId,sessionId);
+
         deadline.setIsClosed(close);
         deadlineRepository.save(deadline);
 
@@ -248,7 +251,7 @@ public class DeadlineService {
             return null;
         }
 
-        Subject subjectResponseEntity = new ServiceRequest().get(application,"subjects/" + subjectId, Subject.class);;
+        Subject subjectResponseEntity = new ServiceRequest().get(application,"subjects/" + subjectId, Subject.class);
         return subjectResponseEntity;
     }
 
@@ -292,13 +295,26 @@ public class DeadlineService {
         return deadlines;
     }
 
-
-    private Deadline checkForExist(String deadlineId) throws UserException {
-        Optional<Deadline> optionalDeadline = deadlineRepository.findById(deadlineId);
-        if(optionalDeadline.isEmpty()){
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "deadline doesn't exist!");
-        } else {
-            return optionalDeadline.get();
+    private Deadline checkForExistOrThrow(String deadlineId, String sessionId) throws UserException {
+        Optional<Deadline> optDeadline = checkForExist(deadlineId, sessionId);
+        if( optDeadline.isEmpty() ) {
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Deadline can't be found");
         }
+        return optDeadline.get();
+    }
+
+    private Optional<Deadline> checkForExist(String deadlineId, String sessionId) throws UserException {
+        Optional<Deadline> optionalDeadline = deadlineRepository.findById(deadlineId);
+        if(optionalDeadline.isPresent()){
+            Deadline deadline = optionalDeadline.get();
+            Set<UserSession> sessions = deadline.getUser().getUserSessions();
+            Boolean hasSession = sessions.stream().map( x -> x.getId()).anyMatch(x -> x.equals(sessionId));
+            SchedCoreApplication.getLogger().warn(sessions.stream().map( x -> x.getId()).collect(Collectors.joining("\n")));
+
+            if( !hasSession ) {
+                throw new UserException(UserExceptionType.WRONG_SESSION, "you don't have access to this deadline");
+            }
+        }
+        return optionalDeadline;
     }
 }
