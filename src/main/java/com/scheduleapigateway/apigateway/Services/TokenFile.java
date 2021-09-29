@@ -27,7 +27,7 @@ public class TokenFile {
 
     private static List<String> tokens = new ArrayList<>();
 
-    private static String tokenFileName = "tokens.txt";
+    private static String tokenFileName = "/data/tokens.txt";
 
     @Value("${schedapp.tokens.serviceKey}")
     private String serviceToken;
@@ -81,58 +81,4 @@ public class TokenFile {
             SchedCoreApplication.getLogger().warn("failed to write tokens file; working in memory-only mode");
         }
     }
-
-//    public static void addTokenToFile(String VKToken) {
-//        try {
-//
-//            Files.writeString(Paths.get("tokens.txt"), VKToken+"\n", StandardOpenOption.APPEND);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//    public static void reWriteTokenFile(HashMap<Integer, String> tokens) {
-//        try {
-//            FileWriter nFile = new FileWriter("tokens.txt");
-//            for(int i = 0; i < tokens.size()-1; ++i)
-//                nFile.write(tokens.get(i) + "\n");
-//            nFile.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//
-//    public static HashMap<Integer, String> getTokensFromFile() {
-//        HashMap<Integer, String> tokens = new HashMap<>();
-
-//            e.printStackTrace();
-//        }
-//        return tokens;
-//    }
-//
-//
-//    public static String getRandomTokenFromSet(HashMap<Integer, String> tokens) {
-//        int sizeTokens = 0;
-//        if(tokens.size() > 1)
-//            sizeTokens = tokens.size() - 1;
-//        int tokenKey = new Random().nextInt(sizeTokens);
-//        String token = tokens.get(tokenKey);
-//        if(!checkActualToken(token)){
-//            SchedCoreApplication.getLogger().info("токен: " + tokens.get(tokenKey) +" удален в связи с тем, что он протух,петух!");
-//            tokens.remove(tokenKey);
-//            reWriteTokenFile(tokens);
-//            return getRandomTokenFromSet(tokens);
-//        }
-//        return token;
-//    }
-//
-//    public static Boolean checkActualToken(String token) {
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        HttpEntity entity = new HttpEntity(httpHeaders);
-//        ResponseEntity<String> vkUser = new RestTemplate().exchange("https://api.vk.com/method/account.getProfileInfo?v=5.130&access_token="+
-//                        token,
-//                HttpMethod.GET, entity, new ParameterizedTypeReference<>(){});
-//        return !vkUser.getHeaders().getFirst("Content-Length").equals("218");
-//    }
-
 }
