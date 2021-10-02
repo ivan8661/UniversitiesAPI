@@ -1,6 +1,8 @@
 package scheadpp.core.Modules.ScheduleUsers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.netflix.discovery.shared.Application;
+import org.springframework.core.ParameterizedTypeReference;
 import scheadpp.core.Common.ResponseObjects.ListAnswer;
 import scheadpp.core.Modules.ScheduleUsers.Entities.ScheduleUser;
 import scheadpp.core.Modules.Universities.Entities.University;
@@ -21,6 +23,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -45,47 +48,33 @@ public class ScheduleUserService {
      * @return scheduleUser
      * @throws UserException default custom exception
      */
-    public ScheduleUser getScheduleUser(String universityId, String scheduleUserId) throws UserException, ServiceException {
+    public ScheduleUser getScheduleUser(String universityId, String scheduleUserId) throws UserException, ServiceException, JsonProcessingException {
 
         Application application = eurekaInstance.getApplication(universityId);
 
-        ResponseEntity<String> entity;
+        ScheduleUser schedUser;
         try {
-            String url = application.getInstances().get(0).getHomePageUrl() + "scheduleUsers" + "/" + scheduleUserId;
-            entity = new RestTemplate().exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
+            schedUser = new ServiceRequest().get(application,"scheduleUsers/" + scheduleUserId, ScheduleUser.class);
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getCause() + " " + e.getMessage());
         }
 
         University university = universityService.getUniversity(universityId);
+        schedUser.setUniversity(university);
 
-        JSONObject scheduleUserJson = new JSONObject(entity.getBody());
-        return new ScheduleUser(scheduleUserJson.optString("id"), scheduleUserJson.optString("name"), university);
+        return schedUser;
     }
 
     public ListAnswer<ScheduleUser> getScheduleUsers(String universityId, String params, ScheduleUser.Type scheduleType) throws UserException, ServiceException {
         Application application = eurekaInstance.getApplication(universityId);
 
-        String entity;
+        ListAnswer<ScheduleUser> schedUsersList;
         try {
-            entity = new ServiceRequest().get(application, scheduleType.rawValue() + "?" + params, String.class);
+            return new ServiceRequest().get(application, scheduleType.rawValue() + "?" + params, new ParameterizedTypeReference<>() {});
+
         } catch (RestClientException e) {
             throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error");
         }
-
-        LinkedList<ScheduleUser> scheduleUsers = new LinkedList<>();
-
-        JSONObject serviceResponse = new JSONObject(entity);
-        JSONArray scheduleUserArray = serviceResponse.optJSONArray("items");
-        int totalCount = serviceResponse.optInt("totalCount", scheduleUserArray.length());
-
-        University university = universityService.getUniversity(universityId);
-
-        for(int i = 0; i < scheduleUserArray.length(); ++i) {
-            JSONObject professor = scheduleUserArray.getJSONObject(i);
-            scheduleUsers.add(new ScheduleUser(professor.optString("_id"), professor.optString("name"), university));
-        }
-        return new ListAnswer<>(scheduleUsers, totalCount);
     }
 
 

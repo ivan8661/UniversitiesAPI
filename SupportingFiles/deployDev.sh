@@ -3,7 +3,8 @@
 serverUser="root"
 serverHost="192.168.1.13"
 
-./build.sh
+currentDir="`dirname $0`"
+$currentDir/build.sh
 
 scp -r ./target/docker/* $serverUser@$serverHost:~/Shared/images_new/
 ssh $serverUser@$serverHost 'cd ~/Shared/images_new && ./load.sh'

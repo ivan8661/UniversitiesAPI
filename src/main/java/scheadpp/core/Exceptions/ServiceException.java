@@ -3,6 +3,7 @@ package scheadpp.core.Exceptions;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @JsonIgnoreProperties({"httpStatus", "stackTrace", "localizedMessage", "suppressed", "cause", "type"})
 public class ServiceException extends Exception implements ErrorResponseAnswer {
@@ -11,6 +12,16 @@ public class ServiceException extends Exception implements ErrorResponseAnswer {
     private String code;
     private Object data;
     private String message;
+
+    public void setResponse(ResponseEntity response) {
+        this.response = response;
+    }
+
+    public ResponseEntity getResponse() {
+        return response;
+    }
+
+    private ResponseEntity response;
 
     public ServiceException(HttpStatus status, JSONObject object) {
         this.status = status;

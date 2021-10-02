@@ -1,5 +1,6 @@
-package scheadpp.core.Common.ResponseObjects;
+package scheadpp.core.Common.Helpers;
 
+import scheadpp.core.Common.ResponseObjects.AnswerTemplate;
 import scheadpp.core.Exceptions.ServiceException;
 import scheadpp.core.Exceptions.UserException;
 import scheadpp.core.Exceptions.UserExceptionType;
@@ -32,8 +33,8 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(ServiceException.class)
-    protected ResponseEntity<AnswerTemplate<Object>> handleServiceException(ServiceException ex) {
-        return new ResponseEntity<>(new AnswerTemplate<>(null, ex), ex.getHttpStatus());
+    protected ResponseEntity handleServiceException(ServiceException ex) {
+        return ex.getResponse();
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)

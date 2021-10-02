@@ -2,7 +2,9 @@ package scheadpp.core.Modules.Schedule;
 
 
 import com.netflix.discovery.shared.Application;
+import scheadpp.core.Common.Helpers.ServiceRequest;
 import scheadpp.core.Common.ResponseObjects.ListAnswer;
+import scheadpp.core.Exceptions.ServiceException;
 import scheadpp.core.Modules.Schedule.Entities.Lesson;
 import scheadpp.core.Modules.Schedule.Entities.Subject;
 import scheadpp.core.Exceptions.UserException;
@@ -23,19 +25,11 @@ public class ScheduleService {
     @Autowired
     private EurekaInstance eurekaInstance;
 
-    public ListAnswer<Lesson> getLessons(String universityId, String scheduleUserId) throws UserException {
+    public ListAnswer<Lesson> getLessons(String universityId, String scheduleUserId) throws UserException, ServiceException {
 
         Application application = eurekaInstance.getApplication(universityId);
-
-        ResponseEntity<ListAnswer<Lesson>> lessons;
-        try {
-            String url = application.getInstances().get(0).getHomePageUrl() + "schedule/" + scheduleUserId;
-            lessons = new RestTemplate().exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {});
-        } catch (RestClientException e) {
-            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
-        }
-
-        return lessons.getBody();
+        ListAnswer<Lesson> lessons = new ServiceRequest().get(application, "schedule/" + scheduleUserId, new ParameterizedTypeReference<>() {});
+        return lessons;
     }
 
     public Lesson getLesson(String universityId, String lessonId) throws UserException {
