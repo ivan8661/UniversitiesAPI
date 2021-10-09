@@ -7,14 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
-import java.io.IOException;
-
 @Configuration
 @SpringBootApplication
 @EnableEurekaClient
 public class SchedCoreApplication {
-
-
 
     static final Logger log = LoggerFactory.getLogger(SchedCoreApplication.class);
 
@@ -22,8 +18,7 @@ public class SchedCoreApplication {
         return log;
     }
 
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         SpringApplication.run(SchedCoreApplication.class, args);
     }
 

@@ -3,6 +3,7 @@ package scheadpp.core.Modules.Schedule;
 
 import scheadpp.core.Common.ResponseObjects.AnswerTemplate;
 import scheadpp.core.Common.ResponseObjects.ListAnswer;
+import scheadpp.core.Exceptions.ServiceException;
 import scheadpp.core.Modules.Schedule.Entities.Lesson;
 import scheadpp.core.Exceptions.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,9 @@ public class ScheduleController {
 
     @GetMapping("/universities/{universityId}/schedule/{scheduleUserId}")
     public ResponseEntity<AnswerTemplate<ListAnswer<Lesson>>> lessons(@PathVariable("universityId") String universityId,
-                                                                      @PathVariable("scheduleUserId") String scheduleUserId) throws UserException {
+                                                                      @PathVariable("scheduleUserId") String scheduleUserId)
+            throws UserException, ServiceException
+    {
         ListAnswer<Lesson> lessonList = scheduleService.getLessons(universityId, scheduleUserId);
         return ResponseEntity.ok().body(new AnswerTemplate<>(lessonList, null));
     }

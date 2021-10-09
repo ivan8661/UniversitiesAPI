@@ -29,11 +29,6 @@ public class ScheduleUser {
     @JsonProperty("university")
     public University university;
 
-    public ScheduleUser(String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
     public University getUniversity() {
         return university;
     }
