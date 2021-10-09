@@ -133,9 +133,9 @@ public class ServiceRequest {
 
         ResponseEntity<String> responseEntity = restTemplate.exchange(url, httpMethod, params,  String.class);
 
-        var str = handleResponse(service,responseEntity);
+        String str = handleResponse(service,responseEntity);
 
-        var mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.readValue(str,responseType);
         } catch (JsonProcessingException e) {
@@ -147,7 +147,7 @@ public class ServiceRequest {
         }
     }
 
-    private <T> T handleResponse(Application service, ResponseEntity<T> responseEntity) throws ServiceException {
+    private String handleResponse(Application service, ResponseEntity<String> responseEntity) throws ServiceException {
         String logMessage = "[" + service.getName() + "] Response: \n" +
                 responseEntity.getStatusCode() +
                 "\nHEADERS:\n" + responseEntity.getHeaders() +
@@ -157,7 +157,9 @@ public class ServiceRequest {
         if( !responseEntity.getStatusCode().is2xxSuccessful() ) {
             SchedCoreApplication.getLogger().error(logMessage);
             JSONObject body = new JSONObject(responseEntity.getBody());
-            throw new ServiceException(responseEntity.getStatusCode(), body);
+            var exception = new ServiceException(responseEntity.getStatusCode(), body);
+            exception.setResponse(responseEntity);
+            throw  exception;
         } else {
             SchedCoreApplication.getLogger().info(logMessage);
             return responseEntity.getBody();

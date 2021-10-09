@@ -13,15 +13,15 @@ public class ServiceException extends Exception implements ErrorResponseAnswer {
     private Object data;
     private String message;
 
-    public void setResponse(ResponseEntity response) {
+    public void setResponse(ResponseEntity<String> response) {
         this.response = response;
     }
 
-    public ResponseEntity getResponse() {
+    public ResponseEntity<String> getResponse() {
         return response;
     }
 
-    private ResponseEntity response;
+    private ResponseEntity<String> response;
 
     public ServiceException(HttpStatus status, JSONObject object) {
         this.status = status;
