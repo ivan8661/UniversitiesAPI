@@ -135,15 +135,15 @@ public class ServiceRequest {
 
         String str = handleResponse(service,responseEntity);
 
+        if(responseType.equals(String.class)) {
+            return (T) str;
+        }
+
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.readValue(str,responseType);
         } catch (JsonProcessingException e) {
-            try {
-                return (T)str;
-            } catch (Exception ex) {
-                throw new UserException(UserExceptionType.SERVER_ERROR, e.getMessage(), e.getStackTrace());
-            }
+            throw new UserException(UserExceptionType.SERVER_ERROR, e.getMessage(), e.getStackTrace());
         }
     }
 
@@ -164,47 +164,6 @@ public class ServiceRequest {
             SchedCoreApplication.getLogger().info(logMessage);
             return responseEntity.getBody();
         }
-    }
-
-
-    private Map<String, Object> toMap(JSONObject object) throws JSONException {
-        Map<String, Object> map = new HashMap();
-
-        if(object == null) {
-            return map;
-        }
-
-        Iterator<String> keysItr = object.keys();
-        while(keysItr.hasNext()) {
-            String key = keysItr.next();
-            Object value = object.get(key);
-
-            if(value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject && value != JSONObject.NULL) {
-                value = toMap((JSONObject) value);
-            }
-            map.put(key, value);
-        }
-        return map;
-    }
-
-    private List<Object> toList(JSONArray array) throws JSONException {
-        List<Object> list = new ArrayList();
-        for(int i = 0; i < array.length(); i++) {
-            Object value = array.get(i);
-            if(value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            list.add(value);
-        }
-        return list;
     }
 
 }

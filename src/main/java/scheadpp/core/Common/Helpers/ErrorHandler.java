@@ -1,5 +1,6 @@
 package scheadpp.core.Common.Helpers;
 
+import org.springframework.http.MediaType;
 import scheadpp.core.Common.ResponseObjects.AnswerTemplate;
 import scheadpp.core.Exceptions.ServiceException;
 import scheadpp.core.Exceptions.UserException;
@@ -33,8 +34,14 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(ServiceException.class)
-    protected ResponseEntity handleServiceException(ServiceException ex) {
-        return ex.getResponse();
+    protected ResponseEntity<String> handleServiceException(ServiceException ex) {
+        var response = ex.getResponse();
+        var body = "{ \"error\":" + response.getBody() + "}";
+        SchedCoreApplication.getLogger().warn("Response: " + ex.getResponse().toString());
+        return ResponseEntity
+                .status(response.getStatusCode())
+                .contentType(MediaType.APPLICATION_JSON).
+                body(body);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
