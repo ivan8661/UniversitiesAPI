@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  core:
+    image: docker.poltorakov.ru/schedapp/core:latest
+    restart: on-failure
+    environment:
+      - SPRING_APPLICATION_NAME=core
+      - WAIT_HOSTS=mysql:3307
+      - WAIT_HOSTS_TIMEOUT=500
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+    volumes:
+      - "core-data:/data"
+    networks:
+      - eureka_network
+      - common_network
+    ports:
+      - "8080:8080"
+
+networks:
+  common_network:
+    name: common_network
+    external: true
+  eureka_network:
+    name: eureka_network
+    external: true
+volumes:
+  core-data:
