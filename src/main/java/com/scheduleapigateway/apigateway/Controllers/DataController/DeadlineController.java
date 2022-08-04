@@ -5,6 +5,7 @@ import com.scheduleapigateway.apigateway.Aspects.SessionRequired;
 import com.scheduleapigateway.apigateway.Controllers.AnswerTemplate;
 import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
+import com.scheduleapigateway.apigateway.Entities.DeadlineSource;
 import com.scheduleapigateway.apigateway.Exceptions.UserException;
 import com.scheduleapigateway.apigateway.Services.DeadlineService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -101,13 +103,12 @@ public class DeadlineController {
     }
 
 
-    /**
-     * @ TODO: 30.07.2021
-     */
+
     @SessionRequired
     @GetMapping(path="/deadlines/sources")
-    public ResponseEntity getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) {
-        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer(new ArrayList() , 0), null));
+    public ResponseEntity getDeadlineSources(@RequestHeader HttpHeaders httpHeaders) throws UserException {
+        List<DeadlineSource> deadlineSources = deadlineService.getSources(httpHeaders.getFirst("X-Session-Id"));
+        return ResponseEntity.ok().body(new AnswerTemplate<>(new ListAnswer(deadlineSources, deadlineSources.size()), null));
     }
 
 

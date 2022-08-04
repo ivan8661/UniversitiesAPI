@@ -2,7 +2,8 @@ version: "3"
 
 services:
   core:
-    image: schedapp/core:latest
+#    image: schedapp/core:latest
+    image: core
     restart: on-failure
     environment:
       - SPRING_APPLICATION_NAME=core

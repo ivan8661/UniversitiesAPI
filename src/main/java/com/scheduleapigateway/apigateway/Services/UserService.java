@@ -210,6 +210,8 @@ public class UserService {
         String secondName = user.optString("lastname");
         String groupId = user.optString("groupId");
         String groupName = user.optString("groupName");
+        String cookie = user.optString("cookie");
+        String externalId = user.optString("externalId");
 
         University university = null;
         try {
@@ -224,7 +226,7 @@ public class UserService {
         } else {
             scheduleUser = null;
         }
-        return new AppUser(id, login, password, firstName, secondName, universityId, groupId, scheduleUser, university);
+        return new AppUser(id, login, password, firstName, secondName, cookie, externalId, university, universityId, groupId, scheduleUser);
     }
 
     public AppUser updateUser(String sessionId, String params) throws UserException, ServiceException {
@@ -328,10 +330,19 @@ public class UserService {
 
 
     public AppUser setUserObjects(AppUser user) throws UserException {
-        if (user.getUniversityId() != null && !user.getUniversityId().isEmpty())
+        if (user.getUniversityId() != null && !user.getUniversityId().isEmpty()) {
+            SchedCoreApplication.getLogger().info("начало вуза!");
+
             user.setUniversity(universityService.getUniversity(user.getUniversityId()));
-        if (user.getScheduleUserId() != null && !user.getScheduleUserId().isEmpty())
+            SchedCoreApplication.getLogger().info("вуз обновлен успешно!");
+        }
+        if (user.getScheduleUserId() != null && !user.getScheduleUserId().isEmpty()) {
+            SchedCoreApplication.getLogger().info("начало шедака!");
+
             user.setScheduleUser(scheduleUserService.getScheduleUser(user.getUniversityId(), user.getScheduleUserId()));
+            SchedCoreApplication.getLogger().info("шедак обновлен успешно!");
+
+        }
         return user;
     }
 

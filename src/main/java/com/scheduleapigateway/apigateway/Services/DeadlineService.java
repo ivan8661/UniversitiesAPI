@@ -10,6 +10,7 @@ import com.scheduleapigateway.apigateway.Controllers.ListAnswer;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.AppUser;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.Deadline;
 import com.scheduleapigateway.apigateway.Entities.DatabaseEntities.UserSession;
+import com.scheduleapigateway.apigateway.Entities.DeadlineSource;
 import com.scheduleapigateway.apigateway.Entities.Repositories.DeadlineRepository;
 import com.scheduleapigateway.apigateway.Entities.Repositories.Lesson.Subject;
 import com.scheduleapigateway.apigateway.Entities.Repositories.UserRepository;
@@ -128,6 +129,27 @@ public class DeadlineService {
         return deadline;
     }
 
+
+    public List<DeadlineSource> getSources(String sessionId) throws UserException {
+        AppUser appUser = userSessionRepository.findUserSessionById(sessionId).getUser();
+        String universityId = appUser.getUniversityId();
+        if(universityId == null)
+            return null;
+        Application application = eurekaInstance.getApplication(universityId);
+
+        Map<String, String> body = new HashMap<>();
+
+        body.put("userId", appUser.getExternalId());
+        body.put("cookie", appUser.getCookieUser());
+
+        List<DeadlineSource> deadlineSources;
+        try {
+            deadlineSources = new ServiceRequest().post(application,"deadlineSources", new HttpEntity<>(body, new HttpHeaders()), List.class);
+        } catch (RestClientException | ServiceException e) {
+            throw new UserException(UserExceptionType.OBJECT_NOT_FOUND, "Service " + application.getName() + " Error", e.getStackTrace());
+        }
+        return deadlineSources;
+    }
 
     private Deadline setDeadlineFields(JSONObject jsonDeadline, Deadline deadline, String sessionId) throws UserException {
         for(String key : jsonDeadline.keySet()){

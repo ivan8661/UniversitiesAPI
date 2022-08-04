@@ -114,6 +114,8 @@ public class AppUser {
         this.vkId = vkId;
     }
 
+
+
     public AppUser(String id, String login, String password, String name,
                    String secondName, String universityId,
                    String scheduleUserId, ScheduleUser scheduleUser, University university) {
@@ -126,6 +128,22 @@ public class AppUser {
         this.scheduleUserId = scheduleUserId;
         this.scheduleUser = scheduleUser;
         this.university = university;
+    }
+
+    public AppUser(String id, String login, String password, String name,
+                   String secondName, String cookieUser, String externalId,
+                   University university, String universityId, String scheduleUserId, ScheduleUser scheduleUser) {
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.name = name;
+        this.secondName = secondName;
+        this.cookieUser = cookieUser;
+        this.externalId = externalId;
+        this.university = university;
+        this.universityId = universityId;
+        this.scheduleUserId = scheduleUserId;
+        this.scheduleUser = scheduleUser;
     }
 
     public String getId() {
